@@ -27,6 +27,13 @@ Para instalar as dependencias `<checkout-backend>`, siga estas etapas:
 ```bash
 yarn install
 ```
+## ⚙️ Configurando ambiente `<checkout-backend>`
+
+Utilizar o arquivo `src/config/env/example.env` como base para a criação dos seguintes arquivos de configuração:
+- `development.env`
+- `test.env`
+
+> Aplicação utiliza schema de validação `src/config/validation/validation.ts`, caso não sejam providas a configurações requeridas, resultará em erro.
 
 ## ☕ Usando `<checkout-backend>`
 
@@ -54,14 +61,6 @@ $ yarn start:dev:win
 
 # debug watch mode
 $ yarn start:debug:win
-```
-
-
-
-Para realizar a definição de variaveis de ambiente, usuarios windows
-
-```bash
-yarn add -D cross-env
 ```
 
 ## Testes

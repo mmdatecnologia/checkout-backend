@@ -8,7 +8,7 @@ import { ConfigModule } from '@nestjs/config'
 @Module({
   imports: [
     ConfigModule.forRoot({
-      envFilePath: `${process.cwd()}/config/env/${process.env.NODE_ENV}.env`,
+      envFilePath: `${process.cwd()}/src/config/env/${process.env.NODE_ENV}.env`,
       expandVariables: true,
       isGlobal: true,
       load: [configuration],

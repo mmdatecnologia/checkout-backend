@@ -1,10 +1,12 @@
 import { AppModule } from '@checkout/app.module'
+import { ConfigService } from '@nestjs/config'
 import { NestFactory } from '@nestjs/core'
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule)
-  await app.listen(3000)
+  const configService = app.get(ConfigService)
+  await app.listen(configService.get<number>('PORT') ?? 3000)
 }
 bootstrap()
-  .then(() => console.log('Application is running'))
+  .then(() => true)
   .catch((err) => console.error(err))

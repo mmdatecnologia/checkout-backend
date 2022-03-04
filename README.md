@@ -33,6 +33,8 @@ yarn install
 Para usar `<checkout-backend>`, siga estas etapas:
 
 ```bash
+# Unix users
+
 # development
 $ yarn start
 
@@ -42,8 +44,24 @@ $ yarn start:dev
 # debug watch mode
 $ yarn start:debug
 
-# production mode
-$ yarn start:prod
+# ***Windows users***
+
+# development
+$ yarn start:win
+
+# watch mode
+$ yarn start:dev:win
+
+# debug watch mode
+$ yarn start:debug:win
+```
+
+
+
+Para realizar a definição de variaveis de ambiente, usuarios windows
+
+```bash
+yarn add -D cross-env
 ```
 
 ## Testes

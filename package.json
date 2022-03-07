@@ -1,6 +1,6 @@
 {
   "name": "checkout-backend",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "JCPM checkout backend",
   "author": "Bossabox",
   "contributors": [
@@ -34,8 +34,12 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --passWithNoTests --runInBand --no-cache --config ./jest-unit.config.js",
     "test:e2e": "yarn test --detectOpenHandles --config ./jest-e2e.config.js",
     "prepare": "husky install",
-    "changelog": "auto-changelog --template changelog-template.hbs -p -u --commit-limit false",
-    "snyk": "snyk test"
+    "snyk": "snyk test",
+    "release": "standard-version",
+    "changelog:minor": "standard-version --release-as minor && auto-changelog -p -u --commit-limit false --hide-credit --template changelog-template.hbs",
+    "changelog:major": "standard-version --release-as major && auto-changelog -p -u --commit-limit false --hide-credit --template changelog-template.hbs",
+    "changelog:patch": "standard-version --release-as patch && auto-changelog -p -u --commit-limit false --hide-credit --template changelog-template.hbs",
+    "changelog:alpha": "standard-version --prerelease alpha && auto-changelog -p -u --commit-limit false --hide-credit --template changelog-template.hbs"
   },
   "dependencies": {
     "@nestjs/common": "^8.0.0",
@@ -76,11 +80,18 @@
     "snyk": "^1.861.0",
     "sonarqube-scanner": "^2.8.1",
     "source-map-support": "^0.5.20",
+    "standard-version": "^9.3.2",
     "supertest": "^6.1.3",
     "ts-jest": "^27.0.3",
     "ts-loader": "^9.2.3",
     "ts-node": "^10.0.0",
     "tsconfig-paths": "^3.10.1",
     "typescript": "4.5.5"
+  },
+  "standard-version": {
+    "skip": {
+      "changelog": true,
+      "commit": true
+    }
   }
 }

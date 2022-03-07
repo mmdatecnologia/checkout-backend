@@ -1,4 +1,5 @@
 import { AppModule } from '@checkout/app.module'
+import { VersioningType } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { NestFactory } from '@nestjs/core'
 import { DocumentBuilder, SwaggerDocumentOptions, SwaggerModule } from '@nestjs/swagger'
@@ -6,6 +7,9 @@ import { DocumentBuilder, SwaggerDocumentOptions, SwaggerModule } from '@nestjs/
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule)
   const configService = app.get(ConfigService)
+  app.enableVersioning({
+    type: VersioningType.URI
+  })
   const config = new DocumentBuilder()
     .setTitle(configService.get<string>('app.name'))
     .setDescription(configService.get<string>('app.description'))

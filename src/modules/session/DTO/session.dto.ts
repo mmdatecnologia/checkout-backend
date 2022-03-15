@@ -1,13 +1,13 @@
 import { Optional } from '@nestjs/common'
 import { ApiProperty } from '@nestjs/swagger'
 import { Type } from 'class-transformer'
-import { IsArray, ValidateNested } from 'class-validator'
+import { IsArray, IsUUID, ValidateNested } from 'class-validator'
 import { ItemDto } from './item.dto'
 import { ShippingDto } from './shipping.dto'
 
 export class SessionDto {
   @ApiProperty()
-  // @IsUUID(4)
+  @IsUUID(4)
   store: string
 
   @ApiProperty({ type: ShippingDto })

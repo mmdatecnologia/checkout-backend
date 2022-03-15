@@ -1,24 +1,21 @@
 import { SessionDto } from '@checkout/modules/session/DTO/session.dto'
 import { Body, Controller, Get, Post, Query } from '@nestjs/common'
 import { ApiResponse, ApiTags } from '@nestjs/swagger'
-import { CacheService } from '../cache/cache.service'
-import { v4 as uuidv4 } from 'uuid'
+import { SessionService } from './session.service'
 
 @ApiTags('Session')
 @Controller('session')
 export class SessionController {
-  constructor(private readonly cacheService: CacheService) {}
+  constructor(private readonly sessionService: SessionService) {}
 
   @Post()
   async set(@Body() req: SessionDto): Promise<string> {
-    const key: string = Buffer.from(uuidv4()).toString('base64')
-    await this.cacheService.set(key, req)
-    return key
+    return await this.sessionService.set(req)
   }
 
   @Get()
   @ApiResponse({ type: [SessionDto] })
   async get(@Query('key') key: string): Promise<SessionDto> {
-    return await this.cacheService.get<SessionDto>(key)
+    return await this.sessionService.get(key)
   }
 }

@@ -1,10 +1,20 @@
 import { AppModule } from '@checkout/app.module'
+import { HttpStatus } from '@nestjs/common'
+import { ValidationPipe } from '@nestjs/common/pipes/validation.pipe'
 import { ConfigService } from '@nestjs/config'
 import { NestFactory } from '@nestjs/core'
 import { DocumentBuilder, SwaggerDocumentOptions, SwaggerModule } from '@nestjs/swagger'
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule)
+  app.useGlobalPipes(
+    new ValidationPipe({
+      errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
+      validationError: { target: true, value: true },
+      whitelist: true
+    })
+  )
+
   const configService = app.get(ConfigService)
   const config = new DocumentBuilder()
     .setTitle(configService.get<string>('app.name'))

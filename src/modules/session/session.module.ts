@@ -1,22 +1,11 @@
-import { CacheModule, Module } from '@nestjs/common'
+import { forwardRef, Module } from '@nestjs/common'
 import { SessionController } from './session.controller'
-import * as redisStore from 'cache-manager-redis-store'
-import { CacheService } from '../cache/cache.service'
+import { CacheRedisModule } from '../cache/cache.redis.module'
+import { SessionService } from './session.service'
 
 @Module({
-  imports: [
-    CacheModule.registerAsync({
-      useFactory: () => {
-        return {
-          store: redisStore,
-          host: 'localhost',
-          port: 6379,
-          ttl: 60 * 3600 * 3600
-        }
-      }
-    })
-  ],
   controllers: [SessionController],
-  providers: [CacheService]
+  imports: [forwardRef(() => CacheRedisModule)],
+  providers: [SessionService]
 })
 export class SessionModule {}

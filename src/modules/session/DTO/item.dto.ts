@@ -1,21 +1,30 @@
 import { ApiProperty } from '@nestjs/swagger'
+import { Type } from 'class-transformer'
+import { IsCurrency, IsNotEmpty, IsUUID, Min, ValidateNested } from 'class-validator'
+import { SizeDto } from './size.dto'
 
 export class ItemDto {
   @ApiProperty()
+  @IsUUID(4)
   id: string
 
   @ApiProperty()
-  titulo: string
+  @IsNotEmpty()
+  title: string
 
   @ApiProperty()
-  descricao: string
+  description: string
 
   @ApiProperty()
-  dimensao: string
+  @ValidateNested({ each: true })
+  @Type(() => SizeDto)
+  size: SizeDto
 
   @ApiProperty()
-  quantidade: number
+  @Min(1)
+  quantity: number
 
   @ApiProperty()
-  valorUnitario: number
+  @IsCurrency()
+  price: number
 }

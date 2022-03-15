@@ -13,7 +13,6 @@ import { v4 as uuidv4 } from 'uuid'
 
 describe('AppController', () => {
   let sessionController: SessionController
-  let sessionService: SessionService
   let sessionValue: SessionDto
 
   beforeEach(async () => {
@@ -23,7 +22,6 @@ describe('AppController', () => {
       providers: [SessionService]
     }).compile()
 
-    sessionService = app.get<SessionService>(SessionService)
     sessionController = app.get<SessionController>(SessionController)
 
     sessionValue = new SessionDto()
@@ -48,7 +46,7 @@ describe('AppController', () => {
   describe('createSession', () => {
     it('should create session', async () => {
       const key = await sessionController.set(sessionValue)
-      const resp = await sessionService.get(key)
+      const resp = await sessionController.get(key)
       expect(sessionValue).toEqual(resp)
     })
   })

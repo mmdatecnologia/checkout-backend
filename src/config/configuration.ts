@@ -5,5 +5,9 @@ export const configuration = (): Record<string, unknown> => ({
     description: process.env.APP_DESCRIPTION || 'NestApplication',
     version: process.env.APP_VERSION || '0.0.1',
     port: parseInt(process.env.PORT, 10) || 3000
+  },
+  cache: {
+    store: process.env.CACHE_STORE,
+    host: process.env.CACHE_HOST
   }
 })

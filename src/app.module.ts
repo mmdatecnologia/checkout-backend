@@ -4,6 +4,7 @@ import { configuration } from '@checkout/config/configuration'
 import { validationSchema } from '@checkout/config/validation/validation'
 import { Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
+import { SessionModule } from './modules/session/session.module'
 
 @Module({
   imports: [
@@ -13,7 +14,8 @@ import { ConfigModule } from '@nestjs/config'
       isGlobal: true,
       load: [configuration],
       validationSchema
-    })
+    }),
+    SessionModule
   ],
   controllers: [AppController],
   providers: [AppService]

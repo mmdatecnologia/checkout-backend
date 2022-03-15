@@ -1,5 +1,5 @@
 import { AppModule } from '@checkout/app.module'
-import { HttpStatus } from '@nestjs/common'
+import { HttpStatus, VersioningType } from '@nestjs/common'
 import { ValidationPipe } from '@nestjs/common/pipes/validation.pipe'
 import { ConfigService } from '@nestjs/config'
 import { NestFactory } from '@nestjs/core'
@@ -16,6 +16,9 @@ async function bootstrap(): Promise<void> {
   )
 
   const configService = app.get(ConfigService)
+  app.enableVersioning({
+    type: VersioningType.URI
+  })
   const config = new DocumentBuilder()
     .setTitle(configService.get<string>('app.name'))
     .setDescription(configService.get<string>('app.description'))

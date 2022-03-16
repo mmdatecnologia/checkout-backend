@@ -2,6 +2,7 @@ import { AppController } from '@checkout/app.controller'
 import { AppService } from '@checkout/app.service'
 import { Test, TestingModule } from '@nestjs/testing'
 
+// TODO remove this unnecessary file
 describe('AppController', () => {
   let appController: AppController
 

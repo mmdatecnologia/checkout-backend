@@ -24,6 +24,7 @@ describe('AppController', () => {
 
     sessionController = app.get<SessionController>(SessionController)
 
+    // TODO create by mockDtoFactory
     sessionValue = new SessionDto()
     sessionValue.store = uuidv4()
 

@@ -1,0 +1,128 @@
+variables:
+  IMAGE_REPO_NAME_DEV: backend-dev-jcpm
+  IMAGE_REPO_NAME_STG: backend-stg-jcpm
+  IMAGE_TAG_DEV: dev
+  IMAGE_TAG_STG: stg  
+  ECR_REGISTRY: ${AWS_ACCOUNT}.dkr.ecr.us-east-1.amazonaws.com
+  DOCKER_HOST: tcp://docker:2375
+
+stages:  
+  - test
+  - sonar-scan
+  - build-push
+  - deploy
+
+workflow:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      when: always
+    - if: '$CI_PIPELINE_SOURCE == "push"'
+      when: always
+    - when: never
+
+test:
+   stage: test
+   only:
+      refs:
+          - merge_requests
+   image: node:16-alpine
+   script:
+     - yarn install
+     - yarn test
+   allow_failure: true
+
+sonar-scan:
+  stage: sonar-scan
+  only:
+    refs:
+      - merge_requests
+  image: docker  
+  services:
+    - docker:dind
+  script:
+    - apk add nodejs npm yarn
+    - yarn install
+    - docker run --rm -e SONAR_HOST_URL="https://sonar.bossabox.com" -e SONAR_LOGIN="$SONAR_LOGIN" -v "$(pwd):/usr/src/" sonarsource/sonar-scanner-cli
+  allow_failure: true
+
+.aws_cli: &aws_cli
+  - curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && unzip -o awscliv2.zip && ./aws/install
+
+###################
+### DEVELOPMENT ###
+###################
+
+build-dev:
+  stage: build-push
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_BUILD_REF_NAME == "develop"'
+  image:
+    name: amazon/aws-cli
+    entrypoint: ['']
+  services:
+    - docker:dind
+  before_script:
+    - amazon-linux-extras install docker
+  script:
+    - echo > Build image Dockerfile ...
+    - docker build -t $ECR_REGISTRY/$IMAGE_REPO_NAME_DEV:$IMAGE_TAG_DEV-$CI_PIPELINE_IID -t $ECR_REGISTRY/$IMAGE_REPO_NAME_DEV:latest .
+    - aws ecr get-login-password | docker login --username AWS --password-stdin $ECR_REGISTRY
+    - echo > Push image Amazon ECR ...
+    - docker push $ECR_REGISTRY/$IMAGE_REPO_NAME_DEV:$IMAGE_TAG_DEV-$CI_PIPELINE_IID
+    - docker push $ECR_REGISTRY/$IMAGE_REPO_NAME_DEV:latest
+
+.kubectl_config_dev: &kubectl_config_dev
+  - aws eks --region us-east-1 update-kubeconfig --name jcpm-cluster
+
+deploy-dev:
+  image: docker.io/sulemanhasib43/eks:latest
+  stage: deploy
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_BUILD_REF_NAME == "develop"'
+  before_script: *kubectl_config_dev
+  script:      
+      - echo > Deploy new image to k8s cluster...
+      - kubectl -n develop patch deployment backend -p '{"spec":{"template":{"spec":{"containers":[{"name":"'"backend"'","image":"'"$ECR_REGISTRY/$IMAGE_REPO_NAME_DEV:$IMAGE_TAG_DEV-$CI_PIPELINE_IID"'"}]}}}}'
+      - kubectl -n develop rollout status deployment/backend
+      - kubectl -n develop get services -o wide
+  when: always
+
+
+###################
+### STAGING #######
+###################
+
+build-stg:
+  stage: build-push
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_BUILD_REF_NAME == "staging"'
+  image:
+    name: amazon/aws-cli
+    entrypoint: ['']
+  services:
+    - docker:dind
+  before_script:
+    - amazon-linux-extras install docker
+  script:
+    - echo > Build image Dockerfile ...
+    - docker build -t $ECR_REGISTRY/$IMAGE_REPO_NAME_STG:$IMAGE_TAG_STG-$CI_PIPELINE_IID -t $ECR_REGISTRY/$IMAGE_REPO_NAME_STG:latest .
+    - aws ecr get-login-password | docker login --username AWS --password-stdin $ECR_REGISTRY
+    - echo > Push image Amazon ECR ...
+    - docker push $ECR_REGISTRY/$IMAGE_REPO_NAME_STG:$IMAGE_TAG_STG-$CI_PIPELINE_IID
+    - docker push $ECR_REGISTRY/$IMAGE_REPO_NAME_STG:latest
+
+.kubectl_config_stg: &kubectl_config_stg
+  - aws eks --region us-east-1 update-kubeconfig --name jcpm-cluster
+
+deploy-stg:
+  image: docker.io/sulemanhasib43/eks:latest
+  stage: deploy
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_BUILD_REF_NAME == "staging"'
+  before_script: *kubectl_config_stg
+  script:      
+      - echo > Deploy new image to k8s cluster...
+      - kubectl -n staging patch deployment backend -p '{"spec":{"template":{"spec":{"containers":[{"name":"'"backend"'","image":"'"$ECR_REGISTRY/$IMAGE_REPO_NAME_STG:$IMAGE_TAG_STG-$CI_PIPELINE_IID"'"}]}}}}'
+      - kubectl -n staging rollout status deployment/backend
+      - kubectl -n staging get services -o wide
+  when: always

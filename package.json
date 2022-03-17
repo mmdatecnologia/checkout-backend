@@ -32,7 +32,7 @@
     "test:watch": "yarn test --watch --config ./jest-unit.config.js",
     "test:cov": "yarn test --coverage --config ./jest-unit.config.js",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --passWithNoTests --runInBand --no-cache --config ./jest-unit.config.js",
-    "test:e2e": "yarn test --forceExit --config ./jest-e2e.config.js",
+    "test:e2e": "yarn test --detectOpenHandles --config ./jest-e2e.config.js",
     "prepare": "husky install",
     "snyk": "snyk test",
     "release": "standard-version",

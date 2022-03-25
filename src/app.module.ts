@@ -22,7 +22,6 @@ import { ShoppingModule } from './modules/shopping/shopping.module'
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => {
-        // if(configService.get('db.type') === 'mongodb'){
         return {
           type: configService.get('db.type'),
           url: configService.get('db.url'),
@@ -31,9 +30,6 @@ import { ShoppingModule } from './modules/shopping/shopping.module'
           useNewUrlParser: true,
           logging: true
         }
-        // }else{
-
-        // }
       }
     }),
     SessionModule,

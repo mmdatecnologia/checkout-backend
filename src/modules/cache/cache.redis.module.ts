@@ -14,9 +14,10 @@ import { CacheRedisService } from './cache.redis.service'
           return {
             store: redisStore,
             host: configService.get<string>('cache.host'),
-            port: 6379, // TODO change to user as config
-            ttl: 60 * 3600 * 3600 // TODO change to user as config
-            // TODO add username, password and database params
+            port: configService.get<string>('cache.port'),
+            ttl: configService.get<number>('cache.ttl'),
+            password: configService.get<string>('cache.password'),
+            prefix: configService.get<string>('cache.prefix')
           }
         } else {
           return null

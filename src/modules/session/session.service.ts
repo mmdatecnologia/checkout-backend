@@ -10,8 +10,7 @@ export class SessionService {
 
   async set(req: SessionDto): Promise<string> {
     const key: string = Buffer.from(uuidv4()).toString('base64')
-    // TODO define generic type
-    await this.cacheService.set(key, req)
+    await this.cacheService.set<SessionDto>(key, req)
     return key
   }
 

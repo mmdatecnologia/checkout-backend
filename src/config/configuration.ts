@@ -8,6 +8,13 @@ export const configuration = (): Record<string, unknown> => ({
   },
   cache: {
     store: process.env.CACHE_STORE,
-    host: process.env.CACHE_HOST
+    host: process.env.CACHE_HOST,
+    password: process.env.CACHE_PASSWORD,
+    port: process.env.CACHE_PORT,
+    prefix: process.env.CACHE_PREFIX
+  },
+  db: {
+    type: process.env.DB_TYPE,
+    url: `mongodb://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`
   }
 })

@@ -1,3 +1,4 @@
+import { AuthModule } from '@checkout/modules/auth/auth.module'
 import { CacheRedisModule } from '@checkout/modules/cache/cache.redis.module'
 import { ItemDto } from '@checkout/modules/session/DTO/item.dto'
 import { SessionDto } from '@checkout/modules/session/DTO/session.dto'
@@ -15,10 +16,16 @@ describe('AppController', () => {
   let sessionController: SessionController
   let sessionValue: SessionDto
 
+  let app: TestingModule
+
+  afterAll(async () => {
+    await app.close()
+  })
+
   beforeEach(async () => {
-    const app: TestingModule = await Test.createTestingModule({
+    app = await Test.createTestingModule({
       controllers: [SessionController],
-      imports: [forwardRef(() => CacheRedisModule)],
+      imports: [forwardRef(() => CacheRedisModule), forwardRef(() => AuthModule)],
       providers: [SessionService]
     }).compile()
 
@@ -46,7 +53,7 @@ describe('AppController', () => {
 
   describe('createSession', () => {
     it('should create session', async () => {
-      const key = await sessionController.set(sessionValue)
+      const key = await sessionController.set(sessionValue, { clientid: '123', secretid: '123' })
       const resp = await sessionController.get(key)
       expect(sessionValue).toEqual(resp)
     })

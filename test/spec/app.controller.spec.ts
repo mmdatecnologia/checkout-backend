@@ -6,8 +6,14 @@ import { Test, TestingModule } from '@nestjs/testing'
 describe('AppController', () => {
   let appController: AppController
 
+  let app: TestingModule
+
+  afterEach(async () => {
+    await app.close()
+  })
+
   beforeEach(async () => {
-    const app: TestingModule = await Test.createTestingModule({
+    app = await Test.createTestingModule({
       controllers: [AppController],
       providers: [AppService]
     }).compile()

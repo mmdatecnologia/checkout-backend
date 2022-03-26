@@ -1,44 +1,79 @@
 import { AuthModule } from '@checkout/modules/auth/auth.module'
+import { AuthService } from '@checkout/modules/auth/auth.service'
 import { CacheRedisModule } from '@checkout/modules/cache/cache.redis.module'
 import { ItemDto } from '@checkout/modules/session/DTO/item.dto'
 import { SessionDto } from '@checkout/modules/session/DTO/session.dto'
-import { ShippingDto } from '@checkout/modules/session/DTO/shipping.dto'
 import { SizeDto } from '@checkout/modules/session/DTO/size.dto'
 import { SessionController } from '@checkout/modules/session/session.controller'
 import { SessionService } from '@checkout/modules/session/session.service'
+import { ShoppingEntity } from '@checkout/modules/shopping/entity/shopping.entity'
+import { ShoppingModule } from '@checkout/modules/shopping/shopping.module'
+import { ShoppingService } from '@checkout/modules/shopping/shopping.service'
 import { forwardRef } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
+import { TypeOrmModule } from '@nestjs/typeorm'
 import { validate } from 'class-validator'
 import * as faker from 'faker-br'
-import { v4 as uuidv4 } from 'uuid'
+import { MongoMemoryServer } from 'mongodb-memory-server'
+jest.mock('@checkout/modules/auth/auth.service')
 
-describe('AppController', () => {
+describe('SessionController', () => {
   let sessionController: SessionController
   let sessionValue: SessionDto
+  let shoppingService: ShoppingService
 
   let app: TestingModule
+  let mongod: MongoMemoryServer
 
   afterAll(async () => {
+    if (mongod) await mongod.stop()
     await app.close()
   })
 
-  beforeEach(async () => {
+  beforeAll(async () => {
+    const auth = new AuthService(null)
+    jest.spyOn(auth, 'validate').mockReturnValue(null)
     app = await Test.createTestingModule({
       controllers: [SessionController],
-      imports: [forwardRef(() => CacheRedisModule), forwardRef(() => AuthModule)],
+      imports: [
+        TypeOrmModule.forRootAsync({
+          useFactory: async () => {
+            mongod = await MongoMemoryServer.create()
+            return {
+              name: 'default',
+              type: 'mongodb',
+              url: await mongod.getUri(),
+              entities: [ShoppingEntity],
+              synchronize: true,
+              useNewUrlParser: true,
+              logging: true
+            }
+          }
+        }),
+        forwardRef(() => CacheRedisModule),
+        forwardRef(() => AuthModule),
+        forwardRef(() => ShoppingModule)
+      ],
       providers: [SessionService]
     }).compile()
 
     sessionController = app.get<SessionController>(SessionController)
+    shoppingService = app.get<ShoppingService>(ShoppingService)
+
+    await shoppingService.create({
+      _id: '123',
+      secretId: '123',
+      callback: 'http://teste'
+    })
 
     // TODO create by mockDtoFactory
     sessionValue = new SessionDto()
-    sessionValue.store = uuidv4()
+    sessionValue.store = 123
 
     const item = new ItemDto()
-    item.id = uuidv4()
+    item.id = 123
     item.title = faker.commerce.productName()
-    item.price = faker.commerce.price()
+    item.price = 123.2
     item.quantity = 1
     item.description = faker.commerce.productAdjective()
 
@@ -67,20 +102,10 @@ describe('AppController', () => {
 
     it('should refuse by store', async () => {
       const newSession = sessionValue
-      newSession.store = faker.company.companyName()
+      newSession.store = null
       const status = await validate(sessionValue)
       expect(status.length).toBe(1)
-      expect(status[0].constraints.isUuid.length > 0).toBe(true)
-    })
-
-    it('should refuse by shipping', async () => {
-      const newSession = sessionValue
-      newSession.shipping = new ShippingDto()
-      newSession.shipping.distance = -1
-      const status = await validate(sessionValue)
-      expect(status.length).toBe(1)
-      expect(status[0].children[0].constraints.min.length > 0).toBe(true)
-      expect(status[0].children[0].constraints.isPositive.length > 0).toBe(true)
+      expect(status[0].constraints.isNotEmpty).toBeTruthy()
     })
   })
 })

@@ -1,12 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { Type } from 'class-transformer'
-import { IsNotEmpty, IsNumber, IsUUID, Min, ValidateNested } from 'class-validator'
+import { IsNotEmpty, IsNumber, Min, ValidateNested } from 'class-validator'
 import { SizeDto } from './size.dto'
 
 export class ItemDto {
   @ApiProperty()
-  @IsUUID(4)
-  id: string
+  @IsNotEmpty()
+  id: number
 
   @ApiProperty()
   @IsNotEmpty()

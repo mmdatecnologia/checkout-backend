@@ -38,7 +38,6 @@ describe('SessionController', () => {
           useFactory: async () => {
             mongod = await MongoMemoryServer.create()
             return {
-              name: 'default',
               type: 'mongodb',
               url: await mongod.getUri(),
               entities: [ShoppingEntity],
@@ -79,7 +78,7 @@ describe('SessionController', () => {
 
   describe('createSession', () => {
     it('should create session', async () => {
-      const key = await sessionController.set(sessionValue, { clientid: '123', secretid: '123' })
+      const key = await sessionController.set(sessionValue, { clientid: 123, id: '123' })
       const resp = await sessionController.get(key)
       expect(sessionValue).toEqual(resp)
     })

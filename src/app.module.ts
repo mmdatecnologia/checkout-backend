@@ -22,6 +22,7 @@ import { ShoppingModule } from './modules/shopping/shopping.module'
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => {
+        console.log('url', configService.get('db.url'))
         return {
           type: configService.get('db.type'),
           url: configService.get('db.url'),

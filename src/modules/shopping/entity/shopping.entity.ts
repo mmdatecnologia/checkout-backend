@@ -1,13 +1,20 @@
+import { ApiProperty } from '@nestjs/swagger'
+import { IsNotEmpty } from 'class-validator'
 import { Column, Entity, ObjectIdColumn } from 'typeorm'
 
 @Entity('shopping')
 export class ShoppingEntity {
+  @ApiProperty()
   @ObjectIdColumn()
+  @IsNotEmpty()
   _id: string
 
+  @ApiProperty()
   @Column()
-  secretId: string
+  @IsNotEmpty()
+  clientId: number
 
+  @ApiProperty()
   @Column()
-  callback: string
+  baseUrl: string
 }

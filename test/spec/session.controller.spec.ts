@@ -8,7 +8,6 @@ import { SessionController } from '@checkout/modules/session/session.controller'
 import { SessionService } from '@checkout/modules/session/session.service'
 import { ShoppingEntity } from '@checkout/modules/shopping/entity/shopping.entity'
 import { ShoppingModule } from '@checkout/modules/shopping/shopping.module'
-import { ShoppingService } from '@checkout/modules/shopping/shopping.service'
 import { forwardRef } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
 import { TypeOrmModule } from '@nestjs/typeorm'
@@ -20,7 +19,6 @@ jest.mock('@checkout/modules/auth/auth.service')
 describe('SessionController', () => {
   let sessionController: SessionController
   let sessionValue: SessionDto
-  let shoppingService: ShoppingService
 
   let app: TestingModule
   let mongod: MongoMemoryServer
@@ -58,13 +56,6 @@ describe('SessionController', () => {
     }).compile()
 
     sessionController = app.get<SessionController>(SessionController)
-    shoppingService = app.get<ShoppingService>(ShoppingService)
-
-    await shoppingService.create({
-      _id: '123',
-      secretId: '123',
-      callback: 'http://teste'
-    })
 
     // TODO create by mockDtoFactory
     sessionValue = new SessionDto()

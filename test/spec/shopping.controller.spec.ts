@@ -45,15 +45,14 @@ describe('ShoppingController', () => {
   describe('root', () => {
     it('CreateShopping"', async () => {
       const shopping = await shoppingController.createShopping({
-        secretId: '123',
-        callback: 'http://teste.com.br/callback',
-        _id: '123'
+        clientId: 123,
+        baseUrl: 'http://teste.com.br'
       })
 
-      const consulta = await shoppingController.getShopping(shopping._id)
+      const consulta = await shoppingController.getShopping(shopping.secretId)
 
-      expect(shopping._id).toEqual(consulta._id)
-      expect(shopping.callback).toEqual(consulta.callback)
+      expect(shopping.secretId).toEqual(consulta.secretId)
+      expect(shopping.baseUrl).toEqual(consulta.baseUrl)
       expect(shopping.secretId).toEqual(consulta.secretId)
     })
   })

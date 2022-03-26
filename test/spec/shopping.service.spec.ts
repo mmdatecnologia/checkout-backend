@@ -45,30 +45,28 @@ describe('ShoppingService', () => {
   describe('root', () => {
     it('CreateShopping"', async () => {
       const shopping = await shoppingService.create({
-        secretId: '123',
-        callback: 'http://teste.com.br/callback',
-        _id: '123'
+        clientId: 123,
+        baseUrl: 'http://teste.com.br/callback'
       })
 
-      const consutla = await shoppingService.get(shopping._id)
+      const consutla = await shoppingService.get(shopping.secretId)
 
-      expect(shopping._id).toEqual(consutla._id)
-      expect(shopping.callback).toEqual(consutla.callback)
+      expect(shopping.secretId).toEqual(consutla.secretId)
+      expect(shopping.baseUrl).toEqual(consutla.baseUrl)
       expect(shopping.secretId).toEqual(consutla.secretId)
     })
 
     it('CheckSecret"', async () => {
       const shopping = await shoppingService.create({
-        secretId: '1234',
-        callback: 'http://teste.com.br/callback',
-        _id: '1234'
+        clientId: 1234,
+        baseUrl: 'http://teste.com.br/callback'
       })
 
-      const consutla = await shoppingService.checkClientSecret(shopping._id, shopping.secretId)
+      const consulta = await shoppingService.checkClientSecret(shopping.secretId, shopping.clientId)
 
-      expect(shopping._id).toEqual(consutla._id)
-      expect(shopping.callback).toEqual(consutla.callback)
-      expect(shopping.secretId).toEqual(consutla.secretId)
+      expect(shopping.secretId).toEqual(consulta._id)
+      expect(shopping.baseUrl).toEqual(consulta.baseUrl)
+      expect(shopping.clientId).toEqual(consulta.clientId)
     })
   })
 })

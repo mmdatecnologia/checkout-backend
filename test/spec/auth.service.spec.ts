@@ -47,18 +47,18 @@ describe('AuthService', () => {
     authService = app.get<AuthService>(AuthService)
     shoppingService = app.get<ShoppingService>(ShoppingService)
 
-    jest.spyOn(shoppingService, 'checkClientSecret').mockImplementation(async (id: string, secretId: string) => {
-      if (id === secretId) return Promise.resolve({ _id: '123', secretId: '123', callback: '' })
+    jest.spyOn(shoppingService, 'checkClientSecret').mockImplementation(async (id: string, clientId: number) => {
+      if (clientId === 123 && id === '123') return Promise.resolve({ _id: '123', secretId: '123', callback: '' })
       return Promise.resolve(null)
     })
   })
   describe('AuthService', () => {
     it('OK', async () => {
-      expect(await authService.validate('123', '123')).toBeUndefined()
+      expect(await authService.validate('123', 123)).toBeUndefined()
     })
     it('UnauthorizedException', async () => {
       const t = async (): Promise<void> => {
-        await authService.validate('123', '1234')
+        await authService.validate('123', 1234)
       }
       await expect(t).rejects.toThrow()
     })

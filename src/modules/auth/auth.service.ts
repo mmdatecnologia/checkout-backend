@@ -5,8 +5,8 @@ import { ShoppingService } from '../shopping/shopping.service'
 export class AuthService {
   constructor(private readonly shoppingService: ShoppingService) {}
 
-  async validate(clientId: string, secretId: string): Promise<void> {
-    const data = await this.shoppingService.checkClientSecret(clientId, secretId)
+  async validate(id: string, clientId: number): Promise<void> {
+    const data = await this.shoppingService.checkClientSecret(id, clientId)
     if (data === null) throw new UnauthorizedException()
   }
 }

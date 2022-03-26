@@ -5,8 +5,8 @@ import { AuthService } from '../auth/auth.service'
 import { SessionService } from './session.service'
 
 interface HeaderData {
-  clientid: string
-  secretid: string
+  id: string
+  clientid: number
 }
 
 @ApiTags('Session')
@@ -25,8 +25,8 @@ export class SessionController {
     description: 'Some custom header',
     required: false
   })
-  async set(@Body() req: SessionDto, @Headers() { clientid, secretid }: HeaderData): Promise<string> {
-    await this.authService.validate(clientid, secretid)
+  async set(@Body() req: SessionDto, @Headers() { id, clientid }: HeaderData): Promise<string> {
+    await this.authService.validate(id, clientid)
     return await this.sessionService.set(req)
   }
 

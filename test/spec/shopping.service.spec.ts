@@ -1,3 +1,4 @@
+import { ShoppingDtoResponse } from '@checkout/shopping/DTO/shopping.dto'
 import { ShoppingEntity } from '@checkout/shopping/entity/shopping.entity'
 import { ShoppingController } from '@checkout/shopping/shopping.controller'
 import { ShoppingService } from '@checkout/shopping/shopping.service'
@@ -66,6 +67,19 @@ describe('ShoppingService', () => {
       expect(createdShopping.secretId).toEqual(shopping._id)
       expect(createdShopping.baseUrl).toEqual(shopping.baseUrl)
       expect(createdShopping.clientId).toEqual(shopping.clientId)
+    })
+    it('Should return null if shopping not found', async () => {
+      const shoppingDtoResponse = Object.assign(new ShoppingDtoResponse(), {
+        clientId: 1234,
+        baseUrl: 'http://teste.com.br/callback'
+      })
+
+      const shopping = await shoppingService.checkClientSecret(
+        shoppingDtoResponse.secretId,
+        shoppingDtoResponse.clientId
+      )
+
+      expect(shopping).toBeFalsy()
     })
   })
 })

@@ -1,20 +1,21 @@
-import { AuthModule } from '@checkout/modules/auth/auth.module'
-import { AuthService } from '@checkout/modules/auth/auth.service'
-import { CacheRedisModule } from '@checkout/modules/cache/cache.redis.module'
-import { ItemDto } from '@checkout/modules/session/DTO/item.dto'
-import { SessionDto } from '@checkout/modules/session/DTO/session.dto'
-import { SizeDto } from '@checkout/modules/session/DTO/size.dto'
-import { SessionController } from '@checkout/modules/session/session.controller'
-import { SessionService } from '@checkout/modules/session/session.service'
-import { ShoppingEntity } from '@checkout/modules/shopping/entity/shopping.entity'
-import { ShoppingModule } from '@checkout/modules/shopping/shopping.module'
+import { AuthModule } from '@checkout/auth/auth.module'
+import { AuthService } from '@checkout/auth/auth.service'
+import { CacheRedisModule } from '@checkout/cache/cache.redis.module'
+import { SessionDto } from '@checkout/session/DTO/session.dto'
+import { SizeDto } from '@checkout/session/DTO/size.dto'
+import { SessionController } from '@checkout/session/session.controller'
+import { SessionService } from '@checkout/session/session.service'
+import { ShoppingEntity } from '@checkout/shopping/entity/shopping.entity'
+import { ShoppingModule } from '@checkout/shopping/shopping.module'
 import { forwardRef } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
 import { TypeOrmModule } from '@nestjs/typeorm'
+import { plainToClass } from 'class-transformer'
 import { validate } from 'class-validator'
 import * as faker from 'faker-br'
 import { MongoMemoryServer } from 'mongodb-memory-server'
-jest.mock('@checkout/modules/auth/auth.service')
+
+jest.mock('@checkout/auth/auth.service')
 
 describe('SessionController', () => {
   let sessionController: SessionController
@@ -39,7 +40,7 @@ describe('SessionController', () => {
             mongod = await MongoMemoryServer.create()
             return {
               type: 'mongodb',
-              url: await mongod.getUri(),
+              url: mongod.getUri(),
               entities: [ShoppingEntity],
               synchronize: true,
               useNewUrlParser: true,
@@ -55,30 +56,32 @@ describe('SessionController', () => {
     }).compile()
 
     sessionController = app.get<SessionController>(SessionController)
-
-    // TODO create by mockDtoFactory
-    sessionValue = new SessionDto()
-    sessionValue.store = 123
-
-    const item = new ItemDto()
-    item.id = 123
-    item.title = faker.commerce.productName()
-    item.price = 123.2
-    item.quantity = 1
-    item.description = faker.commerce.productAdjective()
-
-    item.size = new SizeDto()
-    item.size.height = 1
-    item.size.length = 1
-    item.size.width = 1
-
-    sessionValue.items = []
-    sessionValue.items.push(item)
+    const sessionData = {
+      store: faker.random.number(),
+      items: [
+        {
+          id: faker.random.number(),
+          title: faker.commerce.productName(),
+          price: parseFloat(faker.commerce.price()),
+          quantity: faker.random.number(),
+          description: faker.commerce.productAdjective(),
+          size: {
+            height: faker.random.number(),
+            length: faker.random.number(),
+            width: faker.random.number()
+          }
+        }
+      ]
+    }
+    sessionValue = plainToClass(SessionDto, sessionData)
   })
 
   describe('createSession', () => {
     it('should create session', async () => {
-      const key = await sessionController.set(sessionValue, { clientid: 123, id: '123' })
+      const key = await sessionController.set(sessionValue, {
+        id: faker.random.number(),
+        clientId: faker.random.number()
+      })
       const resp = await sessionController.get(key)
       expect(sessionValue).toEqual(resp)
     })
@@ -87,6 +90,8 @@ describe('SessionController', () => {
   describe('SessionValues', () => {
     it('should accept', async () => {
       const status = await validate(sessionValue)
+      const size = sessionValue.items[0].size
+      expect(size).toBeInstanceOf(SizeDto)
       expect(status.length).toBe(0)
     })
 

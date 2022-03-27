@@ -1,4 +1,4 @@
-import { AppModule } from '@checkout/app.module'
+import { AppModule } from '@checkout/app/app.module'
 import { HttpStatus, VersioningType } from '@nestjs/common'
 import { ValidationPipe } from '@nestjs/common/pipes/validation.pipe'
 import { ConfigService } from '@nestjs/config'

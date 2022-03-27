@@ -1,5 +1,5 @@
-import { AppController } from '@checkout/app.controller'
-import { AppService } from '@checkout/app.service'
+import { AppController } from '@checkout/app/app.controller'
+import { AppService } from '@checkout/app/app.service'
 import { Test, TestingModule } from '@nestjs/testing'
 
 // TODO remove this unnecessary file

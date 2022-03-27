@@ -49,7 +49,7 @@ describe('AuthService', () => {
 
   describe('AuthService', () => {
     it('OK', async () => {
-      expect(await authService.validate('123', 123)).toBeUndefined()
+      expect(await authService.validate('123', 123)).toEqual({ _id: '123', secretId: '123', callback: '' })
     })
     it('UnauthorizedException', async () => {
       const t = async (): Promise<void> => {

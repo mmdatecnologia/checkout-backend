@@ -21,7 +21,7 @@ const buildEslintCommand = (filenames) =>
   const files = checkFiles(filenames)
   if(files?.length > 0){
     return `yarn lint:staged ${files
-      .map((f) => path.relative(process.cwd(), f))}`
+      .map((f) => path.relative(process.cwd(), f)).join(' ')}`
   }
   return 'echo "No files to lint"'
 }
@@ -30,8 +30,7 @@ const buildTestCommand = (filenames) =>
   const files = checkFiles(filenames)
   if(files?.length > 0){
     return `yarn test:staged ${files
-      .map((f) => path.relative(process.cwd(), f))
-      .join(' --file ')}`
+      .map((f) => path.relative(process.cwd(), f)).join(' ')}`
   }
     return 'echo "No files to test"'
     

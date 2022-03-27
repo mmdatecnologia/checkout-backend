@@ -1,11 +1,10 @@
-import { ShoppingEntity } from '@checkout/modules/shopping/entity/shopping.entity'
-import { ShoppingController } from '@checkout/modules/shopping/shopping.controller'
-import { ShoppingService } from '@checkout/modules/shopping/shopping.service'
+import { ShoppingEntity } from '@checkout/shopping/entity/shopping.entity'
+import { ShoppingController } from '@checkout/shopping/shopping.controller'
+import { ShoppingService } from '@checkout/shopping/shopping.service'
 import { Test, TestingModule } from '@nestjs/testing'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { MongoMemoryServer } from 'mongodb-memory-server'
 
-// TODO remove this unnecessary file
 describe('ShoppingController', () => {
   let shoppingController: ShoppingController
   let mongod: MongoMemoryServer
@@ -25,7 +24,7 @@ describe('ShoppingController', () => {
             return {
               name: 'default',
               type: 'mongodb',
-              url: await mongod.getUri(),
+              url: mongod.getUri(),
               entities: [ShoppingEntity],
               synchronize: true,
               useNewUrlParser: true,
@@ -44,16 +43,16 @@ describe('ShoppingController', () => {
 
   describe('root', () => {
     it('CreateShopping"', async () => {
-      const shopping = await shoppingController.createShopping({
+      const createdShopping = await shoppingController.createShopping({
         clientId: 123,
         baseUrl: 'http://teste.com.br'
       })
 
-      const consulta = await shoppingController.getShopping(shopping.secretId)
+      const shopping = await shoppingController.getShopping(createdShopping.secretId)
 
-      expect(shopping.secretId).toEqual(consulta.secretId)
-      expect(shopping.baseUrl).toEqual(consulta.baseUrl)
-      expect(shopping.secretId).toEqual(consulta.secretId)
+      expect(createdShopping.secretId).toEqual(shopping.secretId)
+      expect(createdShopping.baseUrl).toEqual(shopping.baseUrl)
+      expect(createdShopping.secretId).toEqual(shopping.secretId)
     })
   })
 })

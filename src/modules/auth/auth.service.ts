@@ -1,5 +1,5 @@
+import { ShoppingService } from '@checkout/shopping/shopping.service'
 import { Injectable, UnauthorizedException } from '@nestjs/common'
-import { ShoppingService } from '../shopping/shopping.service'
 
 @Injectable()
 export class AuthService {

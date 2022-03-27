@@ -10,7 +10,7 @@ export class CacheRedisService {
   }
 
   async get<T>(key: string): Promise<T> {
-    return await this.cacheManager.get(key)
+    return this.cacheManager.get(key)
   }
 
   async delete(key: string): Promise<void> {

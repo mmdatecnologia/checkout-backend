@@ -15,7 +15,7 @@ export class ShoppingService {
 
   async create(input: ShoppingDto): Promise<ShoppingDtoResponse> {
     const data = await this.shoppingRepository.save({
-      _id: Buffer.from(uuidv4()).toString('base64'),
+      _id: Buffer.from(uuidv4()).toString('base64'), // TODO: transform into a factory method
       clientId: input.clientId,
       baseUrl: input.baseUrl
     })

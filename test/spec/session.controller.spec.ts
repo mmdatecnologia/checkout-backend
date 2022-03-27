@@ -1,19 +1,19 @@
 import { AuthModule } from '@checkout/auth/auth.module'
 import { AuthService } from '@checkout/auth/auth.service'
 import { CacheRedisModule } from '@checkout/cache/cache.redis.module'
+import { typeOrmConfigNoSQL } from '@checkout/config/factories/typeorm.config'
 import { SessionDto } from '@checkout/session/DTO/session.dto'
 import { SizeDto } from '@checkout/session/DTO/size.dto'
 import { SessionController } from '@checkout/session/session.controller'
 import { SessionService } from '@checkout/session/session.service'
-import { ShoppingEntity } from '@checkout/shopping/entity/shopping.entity'
 import { ShoppingModule } from '@checkout/shopping/shopping.module'
 import { forwardRef } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
 import { TypeOrmModule } from '@nestjs/typeorm'
+import { MemoryDb } from '@test/mocks/memory-db'
 import { plainToClass } from 'class-transformer'
 import { validate } from 'class-validator'
 import * as faker from 'faker-br'
-import { MongoMemoryServer } from 'mongodb-memory-server'
 
 jest.mock('@checkout/auth/auth.service')
 
@@ -22,31 +22,17 @@ describe('SessionController', () => {
   let sessionValue: SessionDto
 
   let app: TestingModule
-  let mongod: MongoMemoryServer
-
-  afterAll(async () => {
-    if (mongod) await mongod.stop()
-    await app.close()
-  })
+  const mongod = new MemoryDb()
 
   beforeAll(async () => {
     const auth = new AuthService(null)
     jest.spyOn(auth, 'validate').mockReturnValue(null)
+    await mongod.initialize()
     app = await Test.createTestingModule({
       controllers: [SessionController],
       imports: [
         TypeOrmModule.forRootAsync({
-          useFactory: async () => {
-            mongod = await MongoMemoryServer.create()
-            return {
-              type: 'mongodb',
-              url: mongod.getUri(),
-              entities: [ShoppingEntity],
-              synchronize: true,
-              useNewUrlParser: true,
-              logging: true
-            }
-          }
+          useFactory: typeOrmConfigNoSQL
         }),
         forwardRef(() => CacheRedisModule),
         forwardRef(() => AuthModule),
@@ -74,6 +60,14 @@ describe('SessionController', () => {
       ]
     }
     sessionValue = plainToClass(SessionDto, sessionData)
+  })
+
+  beforeEach(async () => {
+    await mongod.cleanup()
+  })
+
+  afterAll(async () => {
+    await mongod.shutdown()
   })
 
   describe('createSession', () => {

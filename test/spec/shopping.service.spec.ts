@@ -1,37 +1,23 @@
+import { typeOrmConfigNoSQL } from '@checkout/config/factories/typeorm.config'
 import { ShoppingDtoResponse } from '@checkout/shopping/DTO/shopping.dto'
 import { ShoppingEntity } from '@checkout/shopping/entity/shopping.entity'
 import { ShoppingController } from '@checkout/shopping/shopping.controller'
 import { ShoppingService } from '@checkout/shopping/shopping.service'
 import { Test, TestingModule } from '@nestjs/testing'
 import { TypeOrmModule } from '@nestjs/typeorm'
-import { MongoMemoryServer } from 'mongodb-memory-server'
+import { MemoryDb } from '@test/mocks/memory-db'
 
 describe('ShoppingService', () => {
   let shoppingService: ShoppingService
-  let mongod: MongoMemoryServer
+  const mongod = new MemoryDb()
   let app: TestingModule
 
-  afterAll(async () => {
-    if (mongod) await mongod.stop()
-    await app.close()
-  })
-
   beforeAll(async () => {
+    await mongod.initialize()
     app = await Test.createTestingModule({
       imports: [
         TypeOrmModule.forRootAsync({
-          useFactory: async () => {
-            mongod = await MongoMemoryServer.create()
-            return {
-              name: 'default',
-              type: 'mongodb',
-              url: mongod.getUri(),
-              entities: [ShoppingEntity],
-              synchronize: true,
-              useNewUrlParser: true,
-              logging: true
-            }
-          }
+          useFactory: typeOrmConfigNoSQL
         }),
         TypeOrmModule.forFeature([ShoppingEntity])
       ],
@@ -40,6 +26,14 @@ describe('ShoppingService', () => {
     }).compile()
 
     shoppingService = app.get<ShoppingService>(ShoppingService)
+  })
+
+  beforeEach(async () => {
+    await mongod.cleanup()
+  })
+
+  afterAll(async () => {
+    await mongod.shutdown()
   })
 
   describe('root', () => {

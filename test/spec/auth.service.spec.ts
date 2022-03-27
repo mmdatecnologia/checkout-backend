@@ -1,11 +1,11 @@
 import { AuthService } from '@checkout/auth/auth.service'
-import { ShoppingEntity } from '@checkout/shopping/entity/shopping.entity'
+import { typeOrmConfigNoSQL } from '@checkout/config/factories/typeorm.config'
 import { ShoppingModule } from '@checkout/shopping/shopping.module'
 import { ShoppingService } from '@checkout/shopping/shopping.service'
 import { forwardRef } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
 import { TypeOrmModule } from '@nestjs/typeorm'
-import { MongoMemoryServer } from 'mongodb-memory-server'
+import { MemoryDb } from '@test/mocks/memory-db'
 
 jest.mock('@checkout/shopping/shopping.service')
 
@@ -14,31 +14,16 @@ describe('AuthService', () => {
   let shoppingService: ShoppingService
 
   let app: TestingModule
-  let mongod: MongoMemoryServer
-
-  afterAll(async () => {
-    if (mongod) await mongod.stop()
-    await app.close()
-  })
+  const mongod = new MemoryDb()
 
   beforeAll(async () => {
     const auth = new AuthService(null)
     jest.spyOn(auth, 'validate').mockReturnValue(null)
+    await mongod.initialize()
     app = await Test.createTestingModule({
       imports: [
         TypeOrmModule.forRootAsync({
-          useFactory: async () => {
-            mongod = await MongoMemoryServer.create()
-            return {
-              name: 'default',
-              type: 'mongodb',
-              url: mongod.getUri(),
-              entities: [ShoppingEntity],
-              synchronize: true,
-              useNewUrlParser: true,
-              logging: true
-            }
-          }
+          useFactory: typeOrmConfigNoSQL
         }),
         forwardRef(() => ShoppingModule)
       ],
@@ -53,6 +38,15 @@ describe('AuthService', () => {
       return Promise.resolve(null)
     })
   })
+
+  beforeEach(async () => {
+    await mongod.cleanup()
+  })
+
+  afterAll(async () => {
+    await mongod.shutdown()
+  })
+
   describe('AuthService', () => {
     it('OK', async () => {
       expect(await authService.validate('123', 123)).toBeUndefined()

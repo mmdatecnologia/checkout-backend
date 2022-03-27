@@ -16,5 +16,6 @@ export const validationSchema = Joi.object({
   DB_PASSWORD: Joi.string().default('password'),
   DB_HOST: Joi.string().default('localhost'),
   DB_PORT: Joi.number().default(27017),
-  DB_NAME: Joi.string().default('database')
+  DB_NAME: Joi.string().default('database'),
+  DB_SSL: Joi.boolean().default(false)
 })

@@ -9,7 +9,7 @@ export class SessionService {
   constructor(private readonly cacheService: CacheRedisService) {}
 
   async set(req: SessionDto): Promise<string> {
-    const key: string = Buffer.from(uuidv4()).toString('base64')
+    const key: string = Buffer.from(uuidv4()).toString('base64') // TODO: transform into a factory method
     await this.cacheService.set<SessionDto>(key, req)
     return key
   }

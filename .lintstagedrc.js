@@ -1,42 +1,47 @@
 const path = require('path')
 
-const buildEslintCommand = (filenames) =>
-{
-  const files = filenames
+const filenameValidator = filename => {
+  const handler = [
+    () => filename.startsWith('.')
+  ].filter(result => result() === false)
+  return handler.length > 0
+}
+
+const checkFiles = filenames => filenames
     .map((f) => {
       const filename = path.relative(process.cwd(), f)
-      if(!filename.startsWith('.'))
+      if(filenameValidator(filename))
         return filename
     }).filter(function(x) {
       return x !== undefined;
  })
+
+const buildEslintCommand = (filenames) =>
+{
+  const files = checkFiles(filenames)
   if(files?.length > 0){
-    return `npx eslint --fix ${files
+    return `yarn lint:staged ${files
       .map((f) => path.relative(process.cwd(), f))}`
   }
-    return 'echo "No files to lint"'
-    
+  return 'echo "No files to lint"'
 }
 const buildTestCommand = (filenames) =>
 {
-  const files = filenames
-    .map((f) => {
-      const filename = path.relative(process.cwd(), f)
-      if(!filename.startsWith('.'))
-        return filename
-    }).filter(function(x) {
-      return x !== undefined;
- })
+  const files = checkFiles(filenames)
   if(files?.length > 0){
     return `yarn test:staged ${files
       .map((f) => path.relative(process.cwd(), f))
       .join(' --file ')}`
   }
-    return 'echo "No files to lint"'
+    return 'echo "No files to test"'
     
 }
 
 const commands = []
+
+if(buildTestCommand){
+  commands.push(buildTestCommand)
+}
 
 if(buildEslintCommand){
   commands.push(buildEslintCommand)

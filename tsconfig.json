@@ -29,6 +29,12 @@
       ],
       "@checkout/*": [
         "src/modules/*"
+      ],
+      "@test": [
+        "test"
+      ],
+      "@test/*": [
+        "test/*"
       ]
     }
   }

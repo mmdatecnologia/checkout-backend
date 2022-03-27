@@ -11,7 +11,10 @@ async function bootstrap(): Promise<void> {
     new ValidationPipe({
       errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
       validationError: { target: true, value: true },
-      whitelist: true
+      whitelist: true,
+      forbidUnknownValues: true,
+      transform: true,
+      forbidNonWhitelisted: true
     })
   )
 
@@ -25,7 +28,7 @@ async function bootstrap(): Promise<void> {
     .setVersion(configService.get<string>('app.version'))
     .build()
   const options: SwaggerDocumentOptions = {
-    operationIdFactory: (controllerKey: string, methodKey: string) => methodKey
+    operationIdFactory: (controllerKey: string, methodKey: string) => `${controllerKey}:${methodKey}`
   }
   const document = SwaggerModule.createDocument(app, config, options)
   SwaggerModule.setup('api', app, document)

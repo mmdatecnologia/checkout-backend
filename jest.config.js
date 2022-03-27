@@ -2,7 +2,8 @@ module.exports = {
   roots: ['<rootDir>/test'],
   moduleNameMapper: {
     '@test/(.*)': '<rootDir>/test/$1',
-    '@checkout/(.*)': '<rootDir>/src/$1'
+    '@checkout/config/(.*)': '<rootDir>/src/config/$1',
+    '@checkout/(.*)': '<rootDir>/src/modules/$1'
   },
   moduleFileExtensions: ['ts', 'js', 'tsx', 'jsx', 'json'],
   preset: 'ts-jest',
@@ -23,10 +24,7 @@ module.exports = {
   collectCoverageFrom: [
     '<rootDir>/src/**/*.{js,jsx,ts,tsx}',
     '!<rootDir>/src/**/*.module.{js,jsx,ts,tsx}',
-    '!<rootDir>/src/**/*.dto.{js,jsx,ts,tsx}',
-    '!<rootDir>/src/**/*.entity.{js,jsx,ts,tsx}',
     '!<rootDir>/src/**/*.enum.{js,jsx,ts,tsx}',
-    '!<rootDir>/src/**/*.interface.{js,jsx,ts,tsx}',
-    '!<rootDir>/src/**/*.config.{js,jsx,ts,tsx}'
+    '!<rootDir>/src/**/*.interface.{js,jsx,ts,tsx}'
   ],
 };

@@ -1,13 +1,13 @@
-import { AppController } from '@checkout/app.controller'
-import { AppService } from '@checkout/app.service'
+import { AppController } from '@checkout/app/app.controller'
+import { AppService } from '@checkout/app/app.service'
 import { configuration } from '@checkout/config/configuration'
 import { validationSchema } from '@checkout/config/validation/validation'
+import { SessionModule } from '@checkout/session/session.module'
+import { ShoppingEntity } from '@checkout/shopping/entity/shopping.entity'
+import { ShoppingModule } from '@checkout/shopping/shopping.module'
 import { Module } from '@nestjs/common'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { TypeOrmModule } from '@nestjs/typeorm'
-import { SessionModule } from './modules/session/session.module'
-import { ShoppingEntity } from './modules/shopping/entity/shopping.entity'
-import { ShoppingModule } from './modules/shopping/shopping.module'
 
 @Module({
   imports: [

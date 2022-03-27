@@ -1,13 +1,16 @@
 import { AuthModule } from '@checkout/auth/auth.module'
 import { AuthService } from '@checkout/auth/auth.service'
 import { CacheRedisModule } from '@checkout/cache/cache.redis.module'
+import { configuration } from '@checkout/config/configuration'
 import { typeOrmConfigNoSQL } from '@checkout/config/factories/typeorm.config'
+import { validationSchema } from '@checkout/config/validation/validation'
 import { SessionDto } from '@checkout/session/DTO/session.dto'
 import { SizeDto } from '@checkout/session/DTO/size.dto'
 import { SessionController } from '@checkout/session/session.controller'
 import { SessionService } from '@checkout/session/session.service'
 import { ShoppingModule } from '@checkout/shopping/shopping.module'
 import { forwardRef } from '@nestjs/common'
+import { ConfigModule } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { MemoryDb } from '@test/mocks/memory-db'
@@ -31,6 +34,13 @@ describe('SessionController', () => {
     app = await Test.createTestingModule({
       controllers: [SessionController],
       imports: [
+        ConfigModule.forRoot({
+          envFilePath: `${process.cwd()}/src/config/env/${process.env.NODE_ENV}.env`,
+          expandVariables: true,
+          isGlobal: true,
+          load: [configuration],
+          validationSchema
+        }),
         TypeOrmModule.forRootAsync({
           useFactory: typeOrmConfigNoSQL
         }),

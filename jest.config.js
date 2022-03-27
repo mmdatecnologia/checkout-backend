@@ -25,6 +25,6 @@ module.exports = {
     '<rootDir>/src/**/*.{js,jsx,ts,tsx}',
     '!<rootDir>/src/**/*.module.{js,jsx,ts,tsx}',
     '!<rootDir>/src/**/*.enum.{js,jsx,ts,tsx}',
-    '!<rootDir>/src/**/*.interface.{js,jsx,ts,tsx}'
+    '!<rootDir>/src/**/*.interface.{js,jsx,ts,tsx}',
   ],
 };

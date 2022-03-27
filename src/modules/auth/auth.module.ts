@@ -1,5 +1,6 @@
+import { ShoppingModule } from '@checkout/shopping/shopping.module'
 import { forwardRef, Module } from '@nestjs/common'
-import { ShoppingModule } from '../shopping/shopping.module'
+
 import { AuthService } from './auth.service'
 
 @Module({

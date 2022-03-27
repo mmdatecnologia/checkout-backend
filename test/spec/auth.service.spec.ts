@@ -1,12 +1,13 @@
-import { AuthService } from '@checkout/modules/auth/auth.service'
-import { ShoppingEntity } from '@checkout/modules/shopping/entity/shopping.entity'
-import { ShoppingModule } from '@checkout/modules/shopping/shopping.module'
-import { ShoppingService } from '@checkout/modules/shopping/shopping.service'
+import { AuthService } from '@checkout/auth/auth.service'
+import { ShoppingEntity } from '@checkout/shopping/entity/shopping.entity'
+import { ShoppingModule } from '@checkout/shopping/shopping.module'
+import { ShoppingService } from '@checkout/shopping/shopping.service'
 import { forwardRef } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { MongoMemoryServer } from 'mongodb-memory-server'
-jest.mock('@checkout/modules/shopping/shopping.service')
+
+jest.mock('@checkout/shopping/shopping.service')
 
 describe('AuthService', () => {
   let authService: AuthService
@@ -31,7 +32,7 @@ describe('AuthService', () => {
             return {
               name: 'default',
               type: 'mongodb',
-              url: await mongod.getUri(),
+              url: mongod.getUri(),
               entities: [ShoppingEntity],
               synchronize: true,
               useNewUrlParser: true,
@@ -63,19 +64,4 @@ describe('AuthService', () => {
       await expect(t).rejects.toThrow()
     })
   })
-
-  // describe('SessionValues', () => {
-  //   it('should accept', async () => {
-  //     const status = await validate(sessionValue)
-  //     expect(status.length).toBe(0)
-  //   })
-
-  //   it('should refuse by store', async () => {
-  //     const newSession = sessionValue
-  //     newSession.store = null
-  //     const status = await validate(sessionValue)
-  //     expect(status.length).toBe(1)
-  //     expect(status[0].constraints.isNotEmpty).toBeTruthy()
-  //   })
-  // })
 })

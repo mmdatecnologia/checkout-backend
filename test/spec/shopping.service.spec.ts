@@ -1,11 +1,10 @@
-import { ShoppingEntity } from '@checkout/modules/shopping/entity/shopping.entity'
-import { ShoppingController } from '@checkout/modules/shopping/shopping.controller'
-import { ShoppingService } from '@checkout/modules/shopping/shopping.service'
+import { ShoppingEntity } from '@checkout/shopping/entity/shopping.entity'
+import { ShoppingController } from '@checkout/shopping/shopping.controller'
+import { ShoppingService } from '@checkout/shopping/shopping.service'
 import { Test, TestingModule } from '@nestjs/testing'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { MongoMemoryServer } from 'mongodb-memory-server'
 
-// TODO remove this unnecessary file
 describe('ShoppingService', () => {
   let shoppingService: ShoppingService
   let mongod: MongoMemoryServer
@@ -25,7 +24,7 @@ describe('ShoppingService', () => {
             return {
               name: 'default',
               type: 'mongodb',
-              url: await mongod.getUri(),
+              url: mongod.getUri(),
               entities: [ShoppingEntity],
               synchronize: true,
               useNewUrlParser: true,
@@ -44,29 +43,29 @@ describe('ShoppingService', () => {
 
   describe('root', () => {
     it('CreateShopping"', async () => {
-      const shopping = await shoppingService.create({
+      const createdShopping = await shoppingService.create({
         clientId: 123,
         baseUrl: 'http://teste.com.br/callback'
       })
 
-      const consutla = await shoppingService.get(shopping.secretId)
+      const shopping = await shoppingService.get(createdShopping.secretId)
 
-      expect(shopping.secretId).toEqual(consutla.secretId)
-      expect(shopping.baseUrl).toEqual(consutla.baseUrl)
-      expect(shopping.secretId).toEqual(consutla.secretId)
+      expect(createdShopping.secretId).toEqual(shopping.secretId)
+      expect(createdShopping.baseUrl).toEqual(shopping.baseUrl)
+      expect(createdShopping.secretId).toEqual(shopping.secretId)
     })
 
     it('CheckSecret"', async () => {
-      const shopping = await shoppingService.create({
+      const createdShopping = await shoppingService.create({
         clientId: 1234,
         baseUrl: 'http://teste.com.br/callback'
       })
 
-      const consulta = await shoppingService.checkClientSecret(shopping.secretId, shopping.clientId)
+      const shopping = await shoppingService.checkClientSecret(createdShopping.secretId, createdShopping.clientId)
 
-      expect(shopping.secretId).toEqual(consulta._id)
-      expect(shopping.baseUrl).toEqual(consulta.baseUrl)
-      expect(shopping.clientId).toEqual(consulta.clientId)
+      expect(createdShopping.secretId).toEqual(shopping._id)
+      expect(createdShopping.baseUrl).toEqual(shopping.baseUrl)
+      expect(createdShopping.clientId).toEqual(shopping.clientId)
     })
   })
 })

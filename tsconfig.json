@@ -19,10 +19,16 @@
     "noFallthroughCasesInSwitch": false,
     "paths": {
       "@checkout": [
-        "src"
+        "src/modules"
+      ],
+      "@checkout/config": [
+        "src/config"
+      ],
+      "@checkout/config/*": [
+        "src/config/*"
       ],
       "@checkout/*": [
-        "src/*"
+        "src/modules/*"
       ]
     }
   }

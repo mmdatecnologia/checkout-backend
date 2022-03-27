@@ -1,18 +1,22 @@
+import { AppEntity } from '@checkout/app/app.entity'
 import { ApiProperty } from '@nestjs/swagger'
+import { Exclude } from 'class-transformer'
 import { IsNotEmpty } from 'class-validator'
-import { Column, Entity, ObjectIdColumn } from 'typeorm'
+import { Column, Entity, Index } from 'typeorm'
 
 @Entity('shopping')
-export class ShoppingEntity {
+export class ShoppingEntity extends AppEntity {
   @ApiProperty()
-  @ObjectIdColumn()
+  @Column()
   @IsNotEmpty()
-  _id: string
+  @Index()
+  clientId: string
 
   @ApiProperty()
   @Column()
   @IsNotEmpty()
-  clientId: number
+  @Exclude()
+  clientSecret: string
 
   @ApiProperty()
   @Column()

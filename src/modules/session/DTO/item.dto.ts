@@ -7,7 +7,7 @@ import { SizeDto } from './size.dto'
 export class ItemDto {
   @ApiProperty()
   @IsNotEmpty()
-  id: number
+  id: string
 
   @ApiProperty()
   @IsNotEmpty()

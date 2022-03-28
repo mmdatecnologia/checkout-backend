@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { Type } from 'class-transformer'
 import { IsNotEmpty, IsNumber, Min, ValidateNested } from 'class-validator'
+
 import { SizeDto } from './size.dto'
 
 export class ItemDto {
@@ -30,4 +31,8 @@ export class ItemDto {
   @ApiProperty()
   @IsNumber()
   price: number
+
+  @ApiProperty()
+  @IsNumber()
+  store: number
 }

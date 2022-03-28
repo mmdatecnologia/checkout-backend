@@ -14,9 +14,11 @@ export class ItemDto {
   title: string
 
   @ApiProperty()
+  @IsNotEmpty()
   description: string
 
   @ApiProperty()
+  @IsNotEmpty()
   food: boolean = false
 
   @ApiProperty()

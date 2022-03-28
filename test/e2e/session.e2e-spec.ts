@@ -16,12 +16,15 @@ import { SessionFactoryDto } from '@test/mocks/session-factory-dto'
 import { ShoppingFactoryDto } from '@test/mocks/shopping-factory-dto'
 import * as request from 'supertest'
 
+import { SessionModule } from '../../src/modules/session/session.module'
+
 describe('SessionController (e2e)', () => {
   let app: INestApplication
   const sessionFactoryDto = new SessionFactoryDto()
   const shoppingFactoryDto = new ShoppingFactoryDto()
   const mongod = new MemoryDb()
   let shoppingController: ShoppingController
+  let sessionController: SessionController
 
   beforeAll(async () => {
     await mongod.initialize()
@@ -39,12 +42,13 @@ describe('SessionController (e2e)', () => {
         }),
         forwardRef(() => CacheRedisModule),
         forwardRef(() => AuthModule),
-        forwardRef(() => ShoppingModule)
+        forwardRef(() => ShoppingModule).forwardRef(() => SessionModule)
       ],
       providers: [SessionService],
       controllers: [SessionController, ShoppingController]
     }).compile()
     shoppingController = moduleFixture.get<ShoppingController>(ShoppingController)
+    sessionController = moduleFixture.get<SessionController>(SessionController)
 
     app = moduleFixture.createNestApplication()
     await app.init()
@@ -60,18 +64,70 @@ describe('SessionController (e2e)', () => {
     await app.close()
     await mongod.shutdown()
   })
-
-  it('/ (POST)', async () => {
-    const shoppingDto = shoppingFactoryDto.shoppingDto()
-    const createdShopping = await shoppingController.createShopping(shoppingDto)
-    const item = sessionFactoryDto.createItemDto('food')
-    const shipping = sessionFactoryDto.createShippingDto()
-    const sessionValue = sessionFactoryDto.createSessionDto(shipping, [item])
-    return request(app.getHttpServer())
-      .post('/session')
-      .send(sessionValue)
-      .set('clientId', createdShopping.clientId)
-      .set('clientSecret', createdShopping.clientSecret)
-      .expect(201)
+  describe('/ (GET)', () => {
+    it('should authorized', async () => {
+      const shoppingDto = shoppingFactoryDto.shoppingDto()
+      const createdShopping = await shoppingController.createShopping(shoppingDto)
+      const item = sessionFactoryDto.createItemDto('food')
+      const shipping = sessionFactoryDto.createShippingDto()
+      const sessionValue = sessionFactoryDto.createSessionDto(shipping, [item])
+      const sessionHeaders = {
+        clientid: createdShopping.clientId,
+        clientsecret: createdShopping.clientSecret
+      }
+      const session = await sessionController.set(sessionValue, sessionHeaders)
+      return request(app.getHttpServer())
+        .get('/session')
+        .query({ key: session })
+        .set('clientId', createdShopping.clientId)
+        .set('clientSecret', createdShopping.clientSecret)
+        .expect(200)
+    })
+    it('should not authorized', async () => {
+      const shoppingDto = shoppingFactoryDto.shoppingDto()
+      const createdShopping = await shoppingController.createShopping(shoppingDto)
+      const item = sessionFactoryDto.createItemDto('food')
+      const shipping = sessionFactoryDto.createShippingDto()
+      const sessionValue = sessionFactoryDto.createSessionDto(shipping, [item])
+      const sessionHeaders = {
+        clientid: createdShopping.clientId,
+        clientsecret: createdShopping.clientSecret
+      }
+      const session = await sessionController.set(sessionValue, sessionHeaders)
+      return request(app.getHttpServer())
+        .get('/session')
+        .query({ key: session })
+        .set('clientId', 'wrongClientId')
+        .set('clientSecret', 'wrongClientSecret')
+        .expect(401)
+    })
+  })
+  describe('/ (POST)', () => {
+    it('should authorized', async () => {
+      const shoppingDto = shoppingFactoryDto.shoppingDto()
+      const createdShopping = await shoppingController.createShopping(shoppingDto)
+      const item = sessionFactoryDto.createItemDto('food')
+      const shipping = sessionFactoryDto.createShippingDto()
+      const sessionValue = sessionFactoryDto.createSessionDto(shipping, [item])
+      return request(app.getHttpServer())
+        .post('/session')
+        .send(sessionValue)
+        .set('clientId', createdShopping.clientId)
+        .set('clientSecret', createdShopping.clientSecret)
+        .expect(201)
+    })
+    it('should not authorized', async () => {
+      const shoppingDto = shoppingFactoryDto.shoppingDto()
+      await shoppingController.createShopping(shoppingDto)
+      const item = sessionFactoryDto.createItemDto('food')
+      const shipping = sessionFactoryDto.createShippingDto()
+      const sessionValue = sessionFactoryDto.createSessionDto(shipping, [item])
+      return request(app.getHttpServer())
+        .post('/session')
+        .send(sessionValue)
+        .set('clientId', 'otherClientId')
+        .set('clientSecret', 'otherClientId')
+        .expect(401)
+    })
   })
 })

@@ -1,33 +1,18 @@
-import { AuthService } from '@checkout/auth/auth.service'
+import { LocalAuthGuard } from '@checkout/auth/local-auth.guard'
 import { SessionDto } from '@checkout/session/DTO/session.dto'
-import { Body, Controller, Get, Headers, Post, Query } from '@nestjs/common'
-import { ApiHeader, ApiResponse, ApiTags } from '@nestjs/swagger'
+import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common'
+import { ApiResponse, ApiTags } from '@nestjs/swagger'
 
 import { SessionService } from './session.service'
 
-interface HeaderData {
-  id: string
-  clientId: number
-}
-
 @ApiTags('Session')
 @Controller('session')
+@UseGuards(LocalAuthGuard)
 export class SessionController {
-  constructor(private readonly sessionService: SessionService, private readonly authService: AuthService) {}
+  constructor(private readonly sessionService: SessionService) {}
 
   @Post()
-  @ApiHeader({
-    name: 'secretId',
-    description: 'Some custom header',
-    required: false
-  })
-  @ApiHeader({
-    name: 'secretId',
-    description: 'Some custom header',
-    required: false
-  })
-  async set(@Body() req: SessionDto, @Headers() { id, clientId }: HeaderData): Promise<string> {
-    await this.authService.validate(id, clientId)
+  async set(@Body() req: SessionDto): Promise<string> {
     return this.sessionService.set(req)
   }
 

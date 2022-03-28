@@ -1,12 +1,15 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { Type } from 'class-transformer'
-import { IsArray, IsNotEmpty, ValidateNested } from 'class-validator'
+import { IsArray, ValidateNested } from 'class-validator'
+
+import { ClientDto } from './client.dto'
 import { ItemDto } from './item.dto'
 
 export class SessionDto {
   @ApiProperty()
-  @IsNotEmpty()
-  store: number
+  @ValidateNested({ each: true })
+  @Type(() => ClientDto)
+  client: ClientDto
 
   // @ApiProperty({ type: ShippingDto })
   // @ValidateNested({ each: true })

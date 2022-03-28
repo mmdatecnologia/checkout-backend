@@ -23,7 +23,12 @@ module.exports = {
   },
   ignorePatterns: ['.eslintrc.js', 'schema.gql'],
   rules: {
-    'prettier/prettier': 'error',
+    'prettier/prettier': [
+      "error",
+      {
+        "endOfLine": "auto"
+      },
+    ],
     '@typescript-eslint/strict-boolean-expressions': 'off',
     '@typescript-eslint/consistent-type-definitions': 'off',
     '@typescript-eslint/comma-spacing': 'off',

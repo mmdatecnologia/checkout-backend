@@ -1,12 +1,13 @@
 import { AppModule } from '@checkout/app/app.module'
-import { HttpStatus, VersioningType } from '@nestjs/common'
+import { ClassSerializerInterceptor, HttpStatus, VersioningType } from '@nestjs/common'
 import { ValidationPipe } from '@nestjs/common/pipes/validation.pipe'
 import { ConfigService } from '@nestjs/config'
-import { NestFactory } from '@nestjs/core'
+import { NestFactory, Reflector } from '@nestjs/core'
 import { DocumentBuilder, SwaggerDocumentOptions, SwaggerModule } from '@nestjs/swagger'
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule)
+
   app.useGlobalPipes(
     new ValidationPipe({
       errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
@@ -18,10 +19,13 @@ async function bootstrap(): Promise<void> {
     })
   )
 
-  const configService = app.get(ConfigService)
   app.enableVersioning({
     type: VersioningType.URI
   })
+
+  app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)))
+
+  const configService = app.get(ConfigService)
   const config = new DocumentBuilder()
     .setTitle(configService.get<string>('app.name'))
     .setDescription(configService.get<string>('app.description'))
@@ -32,6 +36,7 @@ async function bootstrap(): Promise<void> {
   }
   const document = SwaggerModule.createDocument(app, config, options)
   SwaggerModule.setup('api', app, document)
+
   await app.listen(configService.get<number>('app.port') ?? 3000)
 }
 bootstrap()

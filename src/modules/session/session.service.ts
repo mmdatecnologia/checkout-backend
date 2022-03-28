@@ -1,7 +1,7 @@
+import { CacheRedisService } from '@checkout/cache/cache.redis.service'
 import { Injectable } from '@nestjs/common'
 import { v4 as uuidv4 } from 'uuid'
 
-import { CacheRedisService } from '../cache/cache.redis.service'
 import { SessionDto } from './DTO/session.dto'
 
 @Injectable()
@@ -15,6 +15,6 @@ export class SessionService {
   }
 
   async get(key: string): Promise<SessionDto> {
-    return await this.cacheService.get<SessionDto>(key)
+    return this.cacheService.get<SessionDto>(key)
   }
 }

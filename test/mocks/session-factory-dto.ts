@@ -7,7 +7,7 @@ import * as faker from 'faker-br'
 export class SessionFactoryDto {
   createItemDto(type: 'food' | 'good'): ItemDto {
     return plainToClass(ItemDto, {
-      id: faker.random.number(),
+      id: faker.random.uuid(),
       title: faker.commerce.productName(),
       price: parseFloat(faker.commerce.price()),
       food: type === 'food',

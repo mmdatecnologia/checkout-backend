@@ -1,12 +1,19 @@
-import { AppController } from '@checkout/app.controller'
-import { AppService } from '@checkout/app.service'
+import { AppController } from '@checkout/app/app.controller'
+import { AppService } from '@checkout/app/app.service'
 import { Test, TestingModule } from '@nestjs/testing'
 
+// TODO transform into a health check resource
 describe('AppController', () => {
   let appController: AppController
 
+  let app: TestingModule
+
+  afterEach(async () => {
+    await app.close()
+  })
+
   beforeEach(async () => {
-    const app: TestingModule = await Test.createTestingModule({
+    app = await Test.createTestingModule({
       controllers: [AppController],
       providers: [AppService]
     }).compile()

@@ -1,11 +1,13 @@
+import { AuthModule } from '@checkout/auth/auth.module'
+import { CacheRedisModule } from '@checkout/cache/cache.redis.module'
 import { forwardRef, Module } from '@nestjs/common'
+
 import { SessionController } from './session.controller'
-import { CacheRedisModule } from '../cache/cache.redis.module'
 import { SessionService } from './session.service'
 
 @Module({
-  controllers: [SessionController],
-  imports: [forwardRef(() => CacheRedisModule)],
-  providers: [SessionService]
+  imports: [forwardRef(() => CacheRedisModule), forwardRef(() => AuthModule)],
+  providers: [SessionService],
+  controllers: [SessionController]
 })
 export class SessionModule {}

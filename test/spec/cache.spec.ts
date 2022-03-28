@@ -1,9 +1,9 @@
-import { CacheRedisService } from '@checkout/modules/cache/cache.redis.service'
+import { CacheRedisService } from '@checkout/cache/cache.redis.service'
 import { CacheModule } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
 import { v4 as uuidv4 } from 'uuid'
 
-describe('CacheSerivce', () => {
+describe('CacheService', () => {
   let cacheRedisService: CacheRedisService
   const key = uuidv4()
 
@@ -18,7 +18,7 @@ describe('CacheSerivce', () => {
 
   describe('root', () => {
     it('should create session', async () => {
-      const value = 'teste'
+      const value = 'dummy'
       await cacheRedisService.set<string>(key, value)
       const ret = await cacheRedisService.get<string>(key)
       expect(ret).toEqual(value)

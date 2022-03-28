@@ -1,11 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { Type } from 'class-transformer'
-import { IsCurrency, IsNotEmpty, IsUUID, Min, ValidateNested } from 'class-validator'
+import { IsNotEmpty, IsNumber, Min, ValidateNested } from 'class-validator'
+
 import { SizeDto } from './size.dto'
 
 export class ItemDto {
   @ApiProperty()
-  @IsUUID(4)
+  @IsNotEmpty()
   id: string
 
   @ApiProperty()
@@ -13,7 +14,12 @@ export class ItemDto {
   title: string
 
   @ApiProperty()
+  @IsNotEmpty()
   description: string
+
+  @ApiProperty()
+  @IsNotEmpty()
+  food: boolean = false
 
   @ApiProperty()
   @ValidateNested({ each: true })
@@ -25,6 +31,10 @@ export class ItemDto {
   quantity: number
 
   @ApiProperty()
-  @IsCurrency()
+  @IsNumber()
   price: number
+
+  @ApiProperty()
+  @IsNumber()
+  store: number
 }

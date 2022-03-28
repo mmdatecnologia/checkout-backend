@@ -1,20 +1,15 @@
 import { AuthService } from '@checkout/auth/auth.service'
 import { typeOrmConfigNoSQL } from '@checkout/config/factories/typeorm.config'
-import { ShoppingDto } from '@checkout/shopping/DTO/shopping.dto'
-import { ShoppingModule } from '@checkout/shopping/shopping.module'
+import { ShoppingEntity } from '@checkout/shopping/entity/shopping.entity'
 import { ShoppingService } from '@checkout/shopping/shopping.service'
-import { forwardRef } from '@nestjs/common'
+import { NotFoundException } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { MemoryDb } from '@test/mocks/memory-db'
-import { plainToClass } from 'class-transformer'
-
-jest.mock('@checkout/shopping/shopping.service')
 
 describe('AuthService', () => {
   let authService: AuthService
   let shoppingService: ShoppingService
-  let shoppingDto: ShoppingDto
 
   let app: TestingModule
   const mongod = new MemoryDb()
@@ -29,31 +24,29 @@ describe('AuthService', () => {
       imports: [
         TypeOrmModule.forRootAsync({
           useFactory: typeOrmConfigNoSQL
-        }),
-        forwardRef(() => ShoppingModule)
+        })
       ],
-      providers: [AuthService]
+      providers: [
+        {
+          provide: ShoppingService,
+          useFactory: () => ({
+            checkClientSecret: jest.fn().mockResolvedValue(new ShoppingEntity())
+          })
+        },
+        AuthService
+      ]
     }).compile()
 
     authService = app.get<AuthService>(AuthService)
-
-    shoppingDto = plainToClass(ShoppingDto, {
-      clientId: '123',
-      clientSecret: '123',
-      baseUrl: 'http://teste.com.br',
-      checkoutCallback: 'http://teste.com.br/callback'
-    })
     shoppingService = app.get<ShoppingService>(ShoppingService)
-    jest
-      .spyOn(shoppingService, 'checkClientSecret')
-      .mockImplementation(async (clientId: string, clientSecret: string) => {
-        if (clientId === '123' && clientSecret === '123') return Promise.resolve(shoppingDto)
-        return Promise.resolve(null)
-      })
   })
 
   beforeEach(async () => {
     await mongod.cleanup()
+  })
+
+  afterEach(() => {
+    jest.clearAllMocks()
   })
 
   afterAll(async () => {
@@ -62,13 +55,13 @@ describe('AuthService', () => {
 
   describe('AuthService', () => {
     it('OK', async () => {
-      expect(await authService.validate('123', '123')).toEqual(shoppingDto)
+      shoppingService.checkClientSecret = jest.fn().mockResolvedValue(new ShoppingEntity())
+      const result = await authService.validate('123', '123')
+      expect(result).toEqual(new ShoppingEntity())
     })
     it('UnauthorizedException', async () => {
-      const t = async (): Promise<void> => {
-        await authService.validate('123', '1234')
-      }
-      await expect(t).rejects.toThrow()
+      shoppingService.checkClientSecret = jest.fn().mockRejectedValue(new NotFoundException())
+      await expect(authService.validate('123', '1234')).rejects.toThrow()
     })
   })
 })

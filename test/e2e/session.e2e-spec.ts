@@ -4,6 +4,7 @@ import { configuration } from '@checkout/config/configuration'
 import { typeOrmConfigNoSQL } from '@checkout/config/factories/typeorm.config'
 import { validationSchema } from '@checkout/config/validation/validation'
 import { SessionController } from '@checkout/session/session.controller'
+import { SessionModule } from '@checkout/session/session.module'
 import { SessionService } from '@checkout/session/session.service'
 import { ShoppingController } from '@checkout/shopping/shopping.controller'
 import { ShoppingModule } from '@checkout/shopping/shopping.module'
@@ -15,8 +16,6 @@ import { MemoryDb } from '@test/mocks/memory-db'
 import { SessionFactoryDto } from '@test/mocks/session-factory-dto'
 import { ShoppingFactoryDto } from '@test/mocks/shopping-factory-dto'
 import * as request from 'supertest'
-
-import { SessionModule } from '../../src/modules/session/session.module'
 
 describe('SessionController (e2e)', () => {
   let app: INestApplication

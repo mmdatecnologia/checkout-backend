@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, NotFoundException } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { MongoRepository } from 'typeorm'
 
@@ -21,14 +21,14 @@ export class ShoppingService {
     return shopping
   }
 
-  async checkClientSecret(clientId: string, clientSecret: string): Promise<ShoppingEntity | null> {
+  async checkClientSecret(clientId: string, clientSecret: string): Promise<ShoppingEntity> {
     const shopping = await this.shoppingRepository.findOne({ clientId })
     if (shopping) {
       if (shopping.clientSecret === clientSecret) {
         return shopping
       }
     }
-    return null
+    throw new NotFoundException()
   }
 
   async get(clientId: string, clientSecret: string): Promise<ShoppingEntity | undefined> {

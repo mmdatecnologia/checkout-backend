@@ -12,7 +12,6 @@ export const redisConfig = async (configService: ConfigService): Promise<CacheMo
       password: configService.get<string>('cache.password'),
       prefix: configService.get<string>('cache.prefix')
     }
-  } else {
-    return null
   }
+  return null
 }

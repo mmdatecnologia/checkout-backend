@@ -13,6 +13,7 @@ import { Test, TestingModule } from '@nestjs/testing'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { MemoryDb } from '@test/mocks/memory-db'
 import { SessionFactoryDto } from '@test/mocks/session-factory-dto'
+import { ShoppingFactoryDto } from '@test/mocks/shopping-factory-dto'
 import { validate } from 'class-validator'
 
 jest.mock('@checkout/auth/auth.service')
@@ -22,6 +23,7 @@ describe('SessionController', () => {
   let app: TestingModule
   const mongod = new MemoryDb()
   const sessionFactoryDto = new SessionFactoryDto()
+  const shoppingFactoryDto = new ShoppingFactoryDto()
   beforeAll(async () => {
     await mongod.initialize()
     app = await Test.createTestingModule({
@@ -57,29 +59,34 @@ describe('SessionController', () => {
 
   describe('createSession', () => {
     it('should create session', async () => {
+      const shopping = shoppingFactoryDto.shoppingDto()
+      const shipping = sessionFactoryDto.createShippingDto()
       const item = sessionFactoryDto.createItemDto('food')
-      const sessionValue = sessionFactoryDto.createSessionDto([item])
-      const key = await sessionController.set(sessionValue)
+      const session = sessionFactoryDto.createSessionDto(shipping, [item])
+      const { clientId, clientSecret } = shopping
+      const key = await sessionController.set(session, { clientid: clientId, clientsecret: clientSecret })
       const resp = await sessionController.get(key)
-      expect(sessionValue).toEqual(resp)
+      expect({ ...session, client: { clientId, clientSecret } }).toEqual(resp)
     })
   })
 
   describe('SessionValues', () => {
     it('should accept', async () => {
+      const shipping = sessionFactoryDto.createShippingDto()
       const item = sessionFactoryDto.createItemDto('food')
-      const sessionValue = sessionFactoryDto.createSessionDto([item])
-      const status = await validate(sessionValue)
-      const size = sessionValue.items[0].size
+      const session = sessionFactoryDto.createSessionDto(shipping, [item])
+      const status = await validate(session)
+      const size = session.items[0].size
       expect(size).toBeInstanceOf(SizeDto)
       expect(status.length).toBe(0)
     })
 
     it('should refuse by store', async () => {
+      const shipping = sessionFactoryDto.createShippingDto()
       const item = sessionFactoryDto.createItemDto('food')
-      const sessionValue = sessionFactoryDto.createSessionDto([item])
-      sessionValue.client.clientSecret = ''
-      const status = await validate(sessionValue)
+      const session = sessionFactoryDto.createSessionDto(shipping, [item])
+      session.shipping.zipCode = undefined
+      const status = await validate(session)
       expect(status.length).toBe(1)
       expect(status[0].children[0].constraints.isNotEmpty).toBeTruthy()
     })

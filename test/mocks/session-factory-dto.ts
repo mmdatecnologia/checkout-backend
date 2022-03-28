@@ -1,5 +1,6 @@
+import { CreateSessionDto } from '@checkout/session/DTO/create-session.dto'
 import { ItemDto } from '@checkout/session/DTO/item.dto'
-import { SessionDto } from '@checkout/session/DTO/session.dto'
+import { ShippingDto } from '@checkout/session/DTO/shipping.dto'
 import { plainToClass } from 'class-transformer'
 import * as faker from 'faker-br'
 
@@ -21,14 +22,15 @@ export class SessionFactoryDto {
     })
   }
 
-  createSessionDto(items: ItemDto[]): SessionDto {
-    return plainToClass(SessionDto, {
-      client: {
-        clientId: faker.random.uuid(),
-        clientSecret: faker.random.uuid(),
-        baseUrl: faker.internet.url(),
-        callback: faker.internet.url()
-      },
+  createShippingDto(): ShippingDto {
+    return plainToClass(ShippingDto, {
+      zipCode: faker.address.zipCode()
+    })
+  }
+
+  createSessionDto(shipping: ShippingDto, items: ItemDto[]): CreateSessionDto {
+    return plainToClass(CreateSessionDto, {
+      shipping,
       items
     })
   }

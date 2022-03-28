@@ -65,8 +65,20 @@ describe('SessionController', () => {
       const session = sessionFactoryDto.createSessionDto(shipping, [item])
       const { clientId, clientSecret } = shopping
       const key = await sessionController.set(session, { clientid: clientId, clientsecret: clientSecret })
-      const resp = await sessionController.get(key)
+      const resp = await sessionController.get(key, { clientid: clientId, clientsecret: clientSecret })
       expect({ ...session, client: { clientId, clientSecret } }).toEqual(resp)
+    })
+    it('UnauthorizedException', async () => {
+      const t = async (): Promise<void> => {
+        const shopping = shoppingFactoryDto.shoppingDto()
+        const shipping = sessionFactoryDto.createShippingDto()
+        const item = sessionFactoryDto.createItemDto('food')
+        const session = sessionFactoryDto.createSessionDto(shipping, [item])
+        const { clientId, clientSecret } = shopping
+        const key = await sessionController.set(session, { clientid: clientId, clientsecret: clientSecret })
+        await sessionController.get(key, { clientid: 'other', clientsecret: 'other' })
+      }
+      await expect(t).rejects.toThrow()
     })
   })
 

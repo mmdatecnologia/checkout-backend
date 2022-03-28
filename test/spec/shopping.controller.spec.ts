@@ -5,10 +5,13 @@ import { ShoppingService } from '@checkout/shopping/shopping.service'
 import { Test, TestingModule } from '@nestjs/testing'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { MemoryDb } from '@test/mocks/memory-db'
+import { ShoppingFactoryDto } from '@test/mocks/shopping-factory-dto'
+import { instanceToPlain } from 'class-transformer'
 
 describe('ShoppingController', () => {
   let shoppingController: ShoppingController
   const mongod = new MemoryDb()
+  const shoppingFactoryDto = new ShoppingFactoryDto()
   let app: TestingModule
 
   beforeAll(async () => {
@@ -23,7 +26,6 @@ describe('ShoppingController', () => {
       controllers: [ShoppingController],
       providers: [ShoppingService]
     }).compile()
-
     shoppingController = app.get<ShoppingController>(ShoppingController)
   })
 
@@ -37,16 +39,16 @@ describe('ShoppingController', () => {
 
   describe('root', () => {
     it('CreateShopping"', async () => {
-      const createdShopping = await shoppingController.createShopping({
-        clientId: 123,
-        baseUrl: 'http://teste.com.br'
-      })
-
-      const shopping = await shoppingController.getShopping(createdShopping.secretId)
-
-      expect(createdShopping.secretId).toEqual(shopping.secretId)
-      expect(createdShopping.baseUrl).toEqual(shopping.baseUrl)
-      expect(createdShopping.secretId).toEqual(shopping.secretId)
+      const shoppingDto = shoppingFactoryDto.shoppingDto()
+      const createdShopping = await shoppingController.createShopping(shoppingDto)
+      const plainCreatedShopping = instanceToPlain(createdShopping)
+      expect(createdShopping.id.toString()).toEqual(plainCreatedShopping.id)
+      expect(createdShopping.clientId).toEqual(shoppingDto.clientId)
+      expect(createdShopping.clientSecret).toEqual(shoppingDto.clientSecret)
+      expect(createdShopping.baseUrl).toEqual(shoppingDto.baseUrl)
+      expect(createdShopping.checkoutCallback).toEqual(shoppingDto.checkoutCallback)
+      expect(createdShopping.createdAt).toBeDefined()
+      expect(createdShopping.updatedAt).toBeDefined()
     })
   })
 })

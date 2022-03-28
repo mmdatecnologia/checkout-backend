@@ -2,7 +2,7 @@ import { AppController } from '@checkout/app/app.controller'
 import { AppService } from '@checkout/app/app.service'
 import { Test, TestingModule } from '@nestjs/testing'
 
-// TODO remove this unnecessary file
+// TODO transform into a health check resource
 describe('AppController', () => {
   let appController: AppController
 

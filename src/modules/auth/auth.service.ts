@@ -6,8 +6,8 @@ import { Injectable, UnauthorizedException } from '@nestjs/common'
 export class AuthService {
   constructor(private readonly shoppingService: ShoppingService) {}
 
-  async validate(id: string, clientId: number): Promise<ShoppingEntity> {
-    const data = await this.shoppingService.checkClientSecret(id, clientId)
+  async validate(clientId: string, clientSecret: string): Promise<ShoppingEntity> {
+    const data = await this.shoppingService.checkClientSecret(clientId, clientSecret)
     if (data === null) throw new UnauthorizedException()
     return data
   }

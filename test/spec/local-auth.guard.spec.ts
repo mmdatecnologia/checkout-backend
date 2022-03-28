@@ -2,7 +2,7 @@ import { AuthService } from '@checkout/auth/auth.service'
 import { LocalAuthGuard } from '@checkout/auth/local-auth.guard'
 import { ShoppingEntity } from '@checkout/shopping/entity/shopping.entity'
 import { createMock } from '@golevelup/nestjs-testing'
-import { ExecutionContext } from '@nestjs/common'
+import { ExecutionContext, NotFoundException } from '@nestjs/common'
 
 describe('LocalAuthGuard', () => {
   let localAuthGuard: LocalAuthGuard
@@ -30,7 +30,7 @@ describe('LocalAuthGuard', () => {
   })
 
   it('should not canActivate', async () => {
-    mockAuthService.validate = jest.fn().mockResolvedValue(null)
+    mockAuthService.validate = jest.fn().mockRejectedValue(new NotFoundException())
     const mockExecutionContext = createMock<ExecutionContext>()
     mockExecutionContext.switchToHttp().getRequest.mockReturnValue({
       headers: {

@@ -15,12 +15,12 @@ export class SessionController {
   @Post()
   @ApiHeader({
     name: 'clientSecret',
-    description: 'Some custom header',
+    description: 'Shopping Client Secret for authorization',
     required: true
   })
   @ApiHeader({
     name: 'clientId',
-    description: 'Some custom header',
+    description: 'Shopping Client Id for authorization',
     required: true
   })
   async set(@Body() req: CreateSessionDto, @Headers() headers: any): Promise<string> {
@@ -40,13 +40,13 @@ export class SessionController {
   @Get()
   @ApiHeader({
     name: 'clientSecret',
-    description: 'Some custom header',
-    required: false
+    description: 'Shopping Client Secret for authorization',
+    required: true
   })
   @ApiHeader({
     name: 'clientId',
-    description: 'Some custom header',
-    required: false
+    description: 'Shopping Client Id for authorization',
+    required: true
   })
   @ApiResponse({ type: [SessionDto] })
   async get(@Query('key') key: string, @Headers() headers: any): Promise<SessionDto> {

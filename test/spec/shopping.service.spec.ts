@@ -57,11 +57,12 @@ describe('ShoppingService', () => {
       expect(createdShopping.clientSecret).toEqual(shopping.clientSecret)
       expect(createdShopping.baseUrl).toEqual(shopping.baseUrl)
     })
-    it('Should return null if shopping not found', async () => {
-      const shoppingDto = shoppingFactoryDto.shoppingDto()
-      const shopping = await shoppingService.checkClientSecret(shoppingDto.clientId, shoppingDto.clientSecret)
-
-      expect(shopping).toBeFalsy()
+    it('UnauthorizedException', async () => {
+      const t = async (): Promise<void> => {
+        const shoppingDto = shoppingFactoryDto.shoppingDto()
+        await shoppingService.checkClientSecret(shoppingDto.clientId, shoppingDto.clientSecret)
+      }
+      await expect(t).rejects.toThrow()
     })
   })
 })

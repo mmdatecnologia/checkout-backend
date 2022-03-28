@@ -1,4 +1,4 @@
-import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common'
+import { CanActivate, ExecutionContext, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common'
 
 import { AuthService } from './auth.service'
 
@@ -7,10 +7,14 @@ export class LocalAuthGuard implements CanActivate {
   constructor(private readonly authService: AuthService) {}
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const headers = context.switchToHttp().getRequest().headers
-    const shopping = await this.authService.validate(headers.clientid, headers.clientsecret)
-    if (!shopping) {
-      throw new UnauthorizedException()
+    try {
+      await this.authService.validate(headers.clientid, headers.clientsecret)
+      return true
+    } catch (e) {
+      if (e instanceof NotFoundException) {
+        throw new UnauthorizedException()
+      }
+      throw e
     }
-    return true
   }
 }

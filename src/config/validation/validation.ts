@@ -10,7 +10,7 @@ export const validationSchema = Joi.object({
   CACHE_HOST: Joi.string().default('localhost'),
   CACHE_PASSWORD: Joi.string().default('password'),
   CACHE_PORT: Joi.number().default(6379),
-  CACHE_PREFIX: Joi.string().default('cache'),
+  CACHE_PREFIX: Joi.string().allow(null, '').default('cache'),
   DB_TYPE: Joi.string().valid('mongodb').default('mongodb'),
   DB_USERNAME: Joi.string().default('username'),
   DB_PASSWORD: Joi.string().default('password'),

@@ -11,6 +11,8 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: mongo
       MONGO_INITDB_ROOT_PASSWORD: mongo
+    volumes:
+      - ./mongodb-entrypoint.js:/docker-entrypoint-initdb.d/mongodb-entrypoint.js
   
   redis:
     container_name: redis

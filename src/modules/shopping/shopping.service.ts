@@ -1,9 +1,8 @@
 import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { MongoRepository } from 'typeorm'
-import { v4 as uuidv4 } from 'uuid'
 
-import { ShoppingDto, ShoppingDtoResponse } from './DTO/shopping.dto'
+import { ShoppingDto } from './DTO/shopping.dto'
 import { ShoppingEntity } from './entity/shopping.entity'
 
 @Injectable()
@@ -13,35 +12,26 @@ export class ShoppingService {
     private readonly shoppingRepository: MongoRepository<ShoppingEntity>
   ) {}
 
-  async create(input: ShoppingDto): Promise<ShoppingDtoResponse> {
-    const data = await this.shoppingRepository.save({
-      _id: Buffer.from(uuidv4()).toString('base64'), // TODO: transform into a factory method
-      clientId: input.clientId,
-      baseUrl: input.baseUrl
+  async create(input: ShoppingDto): Promise<ShoppingEntity> {
+    const shopping = Object.assign(new ShoppingEntity(), input, {
+      createdAt: new Date(),
+      updatedAt: new Date()
     })
-    return {
-      ...input,
-      secretId: data._id
-    }
+    await this.shoppingRepository.save(shopping)
+    return shopping
   }
 
-  async checkClientSecret(id: string, clientId: number): Promise<ShoppingEntity | null> {
-    const shopping = await this.shoppingRepository.findOne({ _id: id })
+  async checkClientSecret(clientId: string, clientSecret: string): Promise<ShoppingEntity | null> {
+    const shopping = await this.shoppingRepository.findOne({ clientId })
     if (shopping) {
-      if (shopping.clientId === clientId) {
+      if (shopping.clientSecret === clientSecret) {
         return shopping
       }
     }
     return null
   }
 
-  async get(id: string): Promise<ShoppingDtoResponse> {
-    const data = await this.shoppingRepository.findOne({ _id: id })
-
-    return {
-      secretId: data._id,
-      clientId: data.clientId,
-      baseUrl: data.baseUrl
-    }
+  async get(clientId: string, clientSecret: string): Promise<ShoppingEntity | undefined> {
+    return this.shoppingRepository.findOne({ clientId, clientSecret })
   }
 }

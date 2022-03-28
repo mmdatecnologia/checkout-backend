@@ -1,5 +1,5 @@
 import { LocalAuthGuard } from '@checkout/auth/local-auth.guard'
-import { Body, Controller, Get, Headers, Post, Query, UseGuards } from '@nestjs/common'
+import { Body, Controller, Get, Headers, Post, Query, UnauthorizedException, UseGuards } from '@nestjs/common'
 import { ApiHeader, ApiResponse, ApiTags } from '@nestjs/swagger'
 
 import { CreateSessionDto } from './DTO/create-session.dto'
@@ -49,7 +49,11 @@ export class SessionController {
     required: false
   })
   @ApiResponse({ type: [SessionDto] })
-  async get(@Query('key') key: string): Promise<SessionDto> {
-    return this.sessionService.get(key)
+  async get(@Query('key') key: string, @Headers() headers: any): Promise<SessionDto> {
+    const session = await this.sessionService.get(key)
+    if (session.client.clientId !== headers.clientid || session.client.clientSecret !== headers.clientsecret) {
+      throw new UnauthorizedException()
+    }
+    return session
   }
 }
